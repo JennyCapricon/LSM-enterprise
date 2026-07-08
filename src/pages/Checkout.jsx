@@ -7,20 +7,24 @@ import {
 } from '@mui/material';
 import SEO from '../components/SEO';
 import { useCart } from '../contexts/CartContext';
+import { useOrders } from '../contexts/OrderContext';
 import ContentCopyIcon from '@mui/icons-material/ContentCopy';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import MyLocationIcon from '@mui/icons-material/MyLocation';
 import WhatsAppIcon from '@mui/icons-material/WhatsApp';
+import LocalShippingIcon from '@mui/icons-material/LocalShipping';
+import DiscountIcon from '@mui/icons-material/Discount';
 
 const bankDetails = {
   bank: 'GTBank',
-  accountName: 'LSM Enterprise',
+  accountName: 'Jay Enterprise',
   accountNumber: '0123456789',
 };
 
 const Checkout = () => {
   const navigate = useNavigate();
   const { items, subtotal, clearCart } = useCart();
+  const { addOrder } = useOrders();
   const [paymentMethod, setPaymentMethod] = useState('transfer');
   const [processing, setProcessing] = useState(false);
   const [success, setSuccess] = useState(false);
@@ -33,9 +37,28 @@ const Checkout = () => {
     deliveryNote: '',
   });
   const [txRef, setTxRef] = useState('');
+  const [couponInput, setCouponInput] = useState('');
+  const [appliedCoupon, setAppliedCoupon] = useState('');
+  const [couponDiscount, setCouponDiscount] = useState(0);
+  const [couponError, setCouponError] = useState('');
+
+  const applyCoupon = () => {
+    const code = couponInput.trim().toUpperCase();
+    if (!code) return;
+    if (code.startsWith('WELCOME')) {
+      setAppliedCoupon(code);
+      setCouponDiscount(0.1);
+      setCouponError('');
+    } else {
+      setCouponError('Invalid coupon code');
+      setCouponDiscount(0);
+      setAppliedCoupon('');
+    }
+  };
 
   const shipping = subtotal >= 10000 ? 0 : 1500;
-  const total = subtotal + shipping;
+  const discount = subtotal * couponDiscount;
+  const total = subtotal + shipping - discount;
 
   const handleChange = (e) => setForm({ ...form, [e.target.name]: e.target.value });
 
@@ -88,13 +111,24 @@ const Checkout = () => {
     setTxRef(ref);
     setProcessing(true);
     setTimeout(() => {
+      const order = {
+        id: ref,
+        date: new Date().toISOString(),
+        status: 'processing',
+        items: [...items],
+        total: total,
+        shipping: shipping,
+        address: `${form.address}, ${form.city}, ${form.state} ${form.zip}`,
+        customer: { name: form.fullName, email: form.email, phone: form.phone },
+      };
+      addOrder(order);
       setProcessing(false);
       setSuccess(true);
     }, 800);
   };
 
   const handlePaid = () => {
-    const whatsappNumber = import.meta.env.VITE_WHATSAPP_NUMBER || '234XXXXXXXXXX';
+    const whatsappNumber = import.meta.env.VITE_WHATSAPP_NUMBER || '2349027089929';
     const itemList = items.map(i => `• ${i.name} x${i.quantity} = ₦${(i.price * i.quantity).toLocaleString()}`).join('\n');
     const message = encodeURIComponent(
       `🛒 *NEW ORDER - PAYMENT CONFIRMATION*\n\n` +
@@ -105,7 +139,7 @@ const Checkout = () => {
       `*Transaction Ref:* ${txRef}\n\n` +
       `━━━━ *ORDER ITEMS* ━━━━\n${itemList}\n\n` +
       `*Subtotal:* ₦${subtotal.toLocaleString()}\n` +
-      `*Shipping:* ${shipping === 0 ? 'FREE' : `₦${shipping.toLocaleString()}`}\n` +
+        `*Shipping:* ${shipping === 0 ? 'FREE' : `₦${shipping.toLocaleString()}`}\n` +
       `*Total Paid:* ₦${total.toLocaleString()}\n\n` +
       `━━━━ *DELIVERY ADDRESS* ━━━━\n` +
       `${form.address}\n${form.city}, ${form.state} ${form.zip}\n\n` +
@@ -122,48 +156,93 @@ const Checkout = () => {
     setTimeout(() => setCopied(''), 2000);
   };
 
+  const genCoupon = () => {
+    const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+    let code = 'WELCOME';
+    for (let i = 0; i < 6; i++) code += chars.charAt(Math.floor(Math.random() * chars.length));
+    return code;
+  };
+
   if (success) {
+    const couponCode = genCoupon();
     return (
       <Container sx={{ py: 8, textAlign: 'center' }}>
         <SEO title="Order Placed" />
         <Box sx={{ display: 'flex', justifyContent: 'center', mb: 2 }}>
           <CheckCircleIcon sx={{ fontSize: 80, color: '#4CAF50' }} />
         </Box>
-        <Typography variant="h4" sx={{ fontWeight: 700, color: '#2C1810', mb: 1, fontFamily: '"Playfair Display", serif' }}>
+        <Typography variant="h4" sx={{ fontWeight: 700, color: '#1a1a1a', mb: 1, fontFamily: '"Playfair Display", serif' }}>
           Order Placed Successfully!
         </Typography>
-        <Typography variant="body1" sx={{ color: '#6B5B4F', mb: 1 }}>
-          Transaction Ref: <strong>{txRef}</strong>
-        </Typography>
-        <Typography variant="body2" sx={{ color: '#8B7355', mb: 4 }}>
-          Please save this reference for your records.
-        </Typography>
+
+        <Paper elevation={0} sx={{ maxWidth: 500, mx: 'auto', p: 3, mb: 3, border: '1px solid #e0e0e0', borderRadius: 2, textAlign: 'left' }}>
+          <Typography variant="subtitle2" sx={{ fontWeight: 700, color: '#1a1a1a', mb: 1.5, display: 'flex', alignItems: 'center', gap: 1 }}>
+            <LocalShippingIcon sx={{ color: '#ff6b6b', fontSize: 20 }} /> Track Your Order
+          </Typography>
+          <Typography variant="body2" sx={{ color: '#666', mb: 1 }}>
+            Use this Order ID to track your shipment in real-time:
+          </Typography>
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, p: 1.5, backgroundColor: '#f5f5f5', borderRadius: 1, mb: 1 }}>
+            <Typography sx={{ fontWeight: 700, fontSize: '1.1rem', letterSpacing: 1, flex: 1, color: '#1a1a1a' }}>
+              {txRef}
+            </Typography>
+            <Button size="small" startIcon={<ContentCopyIcon />} onClick={() => { navigator.clipboard.writeText(txRef); setCopied('orderId'); setTimeout(() => setCopied(''), 2000); }}
+              sx={{ color: '#1a1a1a', minWidth: 'auto', fontSize: '0.7rem' }}>
+              {copied === 'orderId' ? 'Copied!' : 'Copy'}
+            </Button>
+          </Box>
+          <Button variant="outlined" size="small" startIcon={<LocalShippingIcon />} onClick={() => navigate('/shipping')}
+            sx={{ borderColor: '#1a1a1a', color: '#1a1a1a', fontWeight: 600, fontSize: '0.75rem' }}>
+            Track Now
+          </Button>
+        </Paper>
+
+        <Paper elevation={0} sx={{ maxWidth: 500, mx: 'auto', p: 3, mb: 3, border: '1px solid #e0e0e0', borderRadius: 2, textAlign: 'left' }}>
+          <Typography variant="subtitle2" sx={{ fontWeight: 700, color: '#1a1a1a', mb: 1.5, display: 'flex', alignItems: 'center', gap: 1 }}>
+            <DiscountIcon sx={{ color: '#ff6b6b', fontSize: 20 }} /> Your Coupon Code
+          </Typography>
+          <Typography variant="body2" sx={{ color: '#666', mb: 1 }}>
+            Enjoy 10% off your next order with this exclusive code:
+          </Typography>
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, p: 1.5, backgroundColor: '#fff3e0', borderRadius: 1, border: '1px dashed #ff6b6b' }}>
+            <Typography sx={{ fontWeight: 800, fontSize: '1.2rem', letterSpacing: 2, flex: 1, color: '#e65100', textAlign: 'center' }}>
+              {couponCode}
+            </Typography>
+            <Button size="small" startIcon={<ContentCopyIcon />} onClick={() => { navigator.clipboard.writeText(couponCode); setCopied('coupon'); setTimeout(() => setCopied(''), 2000); }}
+              sx={{ color: '#1a1a1a', minWidth: 'auto', fontSize: '0.7rem' }}>
+              {copied === 'coupon' ? 'Copied!' : 'Copy'}
+            </Button>
+          </Box>
+          <Typography variant="caption" sx={{ color: '#999', display: 'block', mt: 1 }}>
+            Enter this code at checkout on your next purchase. Valid for 30 days.
+          </Typography>
+        </Paper>
 
         {paymentMethod === 'transfer' && !paid && (
-          <Paper elevation={0} sx={{ maxWidth: 500, mx: 'auto', p: 4, border: '1px solid #E8DDD0', borderRadius: 2, mb: 3, textAlign: 'left' }}>
-            <Typography variant="h6" sx={{ fontWeight: 700, color: '#2C1810', mb: 2, fontFamily: '"Playfair Display", serif' }}>
+          <Paper elevation={0} sx={{ maxWidth: 500, mx: 'auto', p: 4, border: '1px solid #e0e0e0', borderRadius: 2, mb: 3, textAlign: 'left' }}>
+            <Typography variant="h6" sx={{ fontWeight: 700, color: '#1a1a1a', mb: 2, fontFamily: '"Playfair Display", serif' }}>
               Make Your Payment
             </Typography>
             <Alert severity="info" sx={{ mb: 2 }}>
               Transfer the exact amount to the account below, then click "I've Made Payment" to verify with the seller on WhatsApp.
             </Alert>
             <Stack spacing={1.5} sx={{ mb: 3 }}>
-              <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', p: 1.5, backgroundColor: '#FAF6F1', borderRadius: 1 }}>
+              <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', p: 1.5, backgroundColor: '#f5f5f5', borderRadius: 1 }}>
                 <Box>
-                  <Typography variant="caption" sx={{ color: '#8B7355' }}>Bank</Typography>
-                  <Typography sx={{ fontWeight: 600, color: '#2C1810' }}>{bankDetails.bank}</Typography>
+                  <Typography variant="caption" sx={{ color: '#1a1a1a' }}>Bank</Typography>
+                  <Typography sx={{ fontWeight: 600, color: '#1a1a1a' }}>{bankDetails.bank}</Typography>
                 </Box>
               </Box>
-              <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', p: 1.5, backgroundColor: '#FAF6F1', borderRadius: 1 }}>
+              <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', p: 1.5, backgroundColor: '#f5f5f5', borderRadius: 1 }}>
                 <Box>
-                  <Typography variant="caption" sx={{ color: '#8B7355' }}>Account Name</Typography>
-                  <Typography sx={{ fontWeight: 600, color: '#2C1810' }}>{bankDetails.accountName}</Typography>
+                  <Typography variant="caption" sx={{ color: '#1a1a1a' }}>Account Name</Typography>
+                  <Typography sx={{ fontWeight: 600, color: '#1a1a1a' }}>{bankDetails.accountName}</Typography>
                 </Box>
               </Box>
-              <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', p: 1.5, backgroundColor: '#FAF6F1', borderRadius: 1 }}>
+              <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', p: 1.5, backgroundColor: '#f5f5f5', borderRadius: 1 }}>
                 <Box>
-                  <Typography variant="caption" sx={{ color: '#8B7355' }}>Account Number</Typography>
-                  <Typography sx={{ fontWeight: 700, color: '#2C1810', fontSize: '1.1rem', letterSpacing: 2 }}>
+                  <Typography variant="caption" sx={{ color: '#1a1a1a' }}>Account Number</Typography>
+                  <Typography sx={{ fontWeight: 700, color: '#1a1a1a', fontSize: '1.1rem', letterSpacing: 2 }}>
                     {bankDetails.accountNumber}
                   </Typography>
                 </Box>
@@ -171,15 +250,15 @@ const Checkout = () => {
                   size="small"
                   startIcon={<ContentCopyIcon />}
                   onClick={() => copyToClipboard(bankDetails.accountNumber, 'account')}
-                  sx={{ color: '#8B7355', minWidth: 'auto' }}
+                  sx={{ color: '#1a1a1a', minWidth: 'auto' }}
                 >
                   {copied === 'account' ? 'Copied!' : 'Copy'}
                 </Button>
               </Box>
-              <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', p: 1.5, backgroundColor: '#FAF6F1', borderRadius: 1 }}>
+              <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', p: 1.5, backgroundColor: '#f5f5f5', borderRadius: 1 }}>
                 <Box>
-                  <Typography variant="caption" sx={{ color: '#8B7355' }}>Amount</Typography>
-                  <Typography sx={{ fontWeight: 700, color: '#D4A574', fontSize: '1.2rem' }}>
+                  <Typography variant="caption" sx={{ color: '#1a1a1a' }}>Amount</Typography>
+                  <Typography sx={{ fontWeight: 700, color: '#ff6b6b', fontSize: '1.2rem' }}>
                     ₦{total.toLocaleString()}
                   </Typography>
                 </Box>
@@ -187,7 +266,7 @@ const Checkout = () => {
                   size="small"
                   startIcon={<ContentCopyIcon />}
                   onClick={() => copyToClipboard(total.toString(), 'amount')}
-                  sx={{ color: '#8B7355', minWidth: 'auto' }}
+                  sx={{ color: '#1a1a1a', minWidth: 'auto' }}
                 >
                   {copied === 'amount' ? 'Copied!' : 'Copy'}
                 </Button>
@@ -214,10 +293,10 @@ const Checkout = () => {
         )}
 
         {paid && (
-          <Paper elevation={0} sx={{ maxWidth: 500, mx: 'auto', p: 4, border: '1px solid #E8DDD0', borderRadius: 2, mb: 3 }}>
+          <Paper elevation={0} sx={{ maxWidth: 500, mx: 'auto', p: 4, border: '1px solid #e0e0e0', borderRadius: 2, mb: 3 }}>
             <Box sx={{ textAlign: 'center' }}>
               <WhatsAppIcon sx={{ fontSize: 48, color: '#25D366', mb: 1 }} />
-              <Typography variant="h6" sx={{ fontWeight: 700, color: '#2C1810', mb: 1 }}>
+              <Typography variant="h6" sx={{ fontWeight: 700, color: '#1a1a1a', mb: 1 }}>
                 WhatsApp Opened
               </Typography>
               <Typography variant="body2" sx={{ color: '#6B5B4F', mb: 2 }}>
@@ -236,7 +315,7 @@ const Checkout = () => {
           <Button
             variant="contained"
             onClick={() => { clearCart(); navigate('/'); }}
-            sx={{ backgroundColor: '#8B7355', '&:hover': { backgroundColor: '#5C4A32' }, fontWeight: 600 }}
+            sx={{ backgroundColor: '#1a1a1a', '&:hover': { backgroundColor: '#000000' }, fontWeight: 600 }}
           >
             Continue Shopping
           </Button>
@@ -246,7 +325,7 @@ const Checkout = () => {
           <Button
             variant="outlined"
             onClick={() => navigate('/shop')}
-            sx={{ borderColor: '#C4A882', color: '#8B7355', fontWeight: 600 }}
+            sx={{ borderColor: '#ccc', color: '#1a1a1a', fontWeight: 600 }}
           >
             Continue Shopping
           </Button>
@@ -263,7 +342,7 @@ const Checkout = () => {
   return (
     <Box sx={{ width: '100%' }}>
       <SEO title="Checkout" />
-      <Box sx={{ background: 'linear-gradient(135deg, #5C4A32 0%, #8B7355 100%)', color: '#FAF6F1', py: 4, textAlign: 'center' }}>
+      <Box sx={{ background: 'linear-gradient(135deg, #000000 0%, #1a1a1a 100%)', color: '#f5f5f5', py: 4, textAlign: 'center' }}>
         <Container>
           <Typography variant="h4" sx={{ fontWeight: 700, fontFamily: '"Playfair Display", serif' }}>Checkout</Typography>
         </Container>
@@ -273,8 +352,8 @@ const Checkout = () => {
         <form onSubmit={handlePlaceOrder}>
           <Grid container spacing={4}>
             <Grid item xs={12} md={7}>
-              <Paper elevation={0} sx={{ p: 3, border: '1px solid #E8DDD0', borderRadius: 2, mb: 3 }}>
-                <Typography variant="h6" sx={{ fontWeight: 700, color: '#2C1810', mb: 3, fontFamily: '"Playfair Display", serif' }}>
+              <Paper elevation={0} sx={{ p: 3, border: '1px solid #e0e0e0', borderRadius: 2, mb: 3 }}>
+                <Typography variant="h6" sx={{ fontWeight: 700, color: '#1a1a1a', mb: 3, fontFamily: '"Playfair Display", serif' }}>
                   Personal Information
                 </Typography>
                 <Stack spacing={2}>
@@ -290,9 +369,9 @@ const Checkout = () => {
                 </Stack>
               </Paper>
 
-              <Paper elevation={0} sx={{ p: 3, border: '1px solid #E8DDD0', borderRadius: 2, mb: 3 }}>
+              <Paper elevation={0} sx={{ p: 3, border: '1px solid #e0e0e0', borderRadius: 2, mb: 3 }}>
                 <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
-                  <Typography variant="h6" sx={{ fontWeight: 700, color: '#2C1810', fontFamily: '"Playfair Display", serif' }}>
+                  <Typography variant="h6" sx={{ fontWeight: 700, color: '#1a1a1a', fontFamily: '"Playfair Display", serif' }}>
                     Delivery Address
                   </Typography>
                   <Button
@@ -300,7 +379,7 @@ const Checkout = () => {
                     startIcon={locating ? <CircularProgress size={16} /> : <MyLocationIcon />}
                     onClick={detectLocation}
                     disabled={locating}
-                    sx={{ color: '#8B7355', fontWeight: 600, textTransform: 'none' }}
+                    sx={{ color: '#1a1a1a', fontWeight: 600, textTransform: 'none' }}
                   >
                     {locating ? 'Detecting...' : 'Detect My Location'}
                   </Button>
@@ -330,46 +409,46 @@ const Checkout = () => {
                 </Stack>
               </Paper>
 
-              <Paper elevation={0} sx={{ p: 3, border: '1px solid #E8DDD0', borderRadius: 2 }}>
-                <Typography variant="h6" sx={{ fontWeight: 700, color: '#2C1810', mb: 2, fontFamily: '"Playfair Display", serif' }}>
+              <Paper elevation={0} sx={{ p: 3, border: '1px solid #e0e0e0', borderRadius: 2 }}>
+                <Typography variant="h6" sx={{ fontWeight: 700, color: '#1a1a1a', mb: 2, fontFamily: '"Playfair Display", serif' }}>
                   Payment Method
                 </Typography>
                 <FormControl>
                   <RadioGroup value={paymentMethod} onChange={(e) => setPaymentMethod(e.target.value)}>
                     <FormControlLabel
                       value="transfer"
-                      control={<Radio sx={{ '&.Mui-checked': { color: '#8B7355' } }} />}
+                      control={<Radio sx={{ '&.Mui-checked': { color: '#1a1a1a' } }} />}
                       label={
                         <Box>
-                          <Typography sx={{ fontWeight: 600, color: '#2C1810' }}>Bank Transfer</Typography>
-                          <Typography variant="caption" sx={{ color: '#8B7355' }}>
+                          <Typography sx={{ fontWeight: 600, color: '#1a1a1a' }}>Bank Transfer</Typography>
+                          <Typography variant="caption" sx={{ color: '#1a1a1a' }}>
                             Pay via bank transfer and confirm with WhatsApp
                           </Typography>
                         </Box>
                       }
                     />
                     {paymentMethod === 'transfer' && (
-                      <Box sx={{ ml: 4, mb: 2, p: 2, backgroundColor: '#FAF6F1', borderRadius: 1 }}>
+                      <Box sx={{ ml: 4, mb: 2, p: 2, backgroundColor: '#f5f5f5', borderRadius: 1 }}>
                         <Stack spacing={1}>
                           <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                            <Typography variant="caption" sx={{ color: '#8B7355' }}>Bank:</Typography>
-                            <Typography variant="body2" sx={{ fontWeight: 600, color: '#2C1810' }}>{bankDetails.bank}</Typography>
+                            <Typography variant="caption" sx={{ color: '#1a1a1a' }}>Bank:</Typography>
+                            <Typography variant="body2" sx={{ fontWeight: 600, color: '#1a1a1a' }}>{bankDetails.bank}</Typography>
                           </Box>
                           <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                            <Typography variant="caption" sx={{ color: '#8B7355' }}>Account Name:</Typography>
-                            <Typography variant="body2" sx={{ fontWeight: 600, color: '#2C1810' }}>{bankDetails.accountName}</Typography>
+                            <Typography variant="caption" sx={{ color: '#1a1a1a' }}>Account Name:</Typography>
+                            <Typography variant="body2" sx={{ fontWeight: 600, color: '#1a1a1a' }}>{bankDetails.accountName}</Typography>
                           </Box>
                           <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                            <Typography variant="caption" sx={{ color: '#8B7355' }}>Account Number:</Typography>
+                            <Typography variant="caption" sx={{ color: '#1a1a1a' }}>Account Number:</Typography>
                             <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                              <Typography variant="body2" sx={{ fontWeight: 700, color: '#2C1810', letterSpacing: 1 }}>
+                              <Typography variant="body2" sx={{ fontWeight: 700, color: '#1a1a1a', letterSpacing: 1 }}>
                                 {bankDetails.accountNumber}
                               </Typography>
                               <Button
                                 size="small"
                                 startIcon={<ContentCopyIcon fontSize="small" />}
                                 onClick={() => copyToClipboard(bankDetails.accountNumber, 'acc')}
-                                sx={{ color: '#8B7355', minWidth: 'auto', fontSize: '0.7rem' }}
+                                sx={{ color: '#1a1a1a', minWidth: 'auto', fontSize: '0.7rem' }}
                               >
                                 {copied === 'acc' ? 'Copied' : 'Copy'}
                               </Button>
@@ -380,11 +459,11 @@ const Checkout = () => {
                     )}
                     <FormControlLabel
                       value="delivery"
-                      control={<Radio sx={{ '&.Mui-checked': { color: '#8B7355' } }} />}
+                      control={<Radio sx={{ '&.Mui-checked': { color: '#1a1a1a' } }} />}
                       label={
                         <Box>
-                          <Typography sx={{ fontWeight: 600, color: '#2C1810' }}>Pay on Delivery</Typography>
-                          <Typography variant="caption" sx={{ color: '#8B7355' }}>
+                          <Typography sx={{ fontWeight: 600, color: '#1a1a1a' }}>Pay on Delivery</Typography>
+                          <Typography variant="caption" sx={{ color: '#1a1a1a' }}>
                             Pay cash when your order is delivered
                           </Typography>
                         </Box>
@@ -401,8 +480,8 @@ const Checkout = () => {
                   disabled={processing}
                   sx={{
                     mt: 3,
-                    backgroundColor: '#8B7355',
-                    '&:hover': { backgroundColor: '#5C4A32' },
+                    backgroundColor: '#1a1a1a',
+                    '&:hover': { backgroundColor: '#000000' },
                     fontWeight: 700, py: 1.5,
                   }}
                 >
@@ -410,7 +489,7 @@ const Checkout = () => {
                 </Button>
 
                 {paymentMethod === 'transfer' && (
-                  <Typography variant="caption" sx={{ display: 'block', textAlign: 'center', mt: 1, color: '#8B7355' }}>
+                  <Typography variant="caption" sx={{ display: 'block', textAlign: 'center', mt: 1, color: '#1a1a1a' }}>
                     After placing order, you'll need to transfer the amount and confirm via WhatsApp.
                   </Typography>
                 )}
@@ -418,8 +497,8 @@ const Checkout = () => {
             </Grid>
 
             <Grid item xs={12} md={5}>
-              <Paper elevation={0} sx={{ p: 3, border: '1px solid #E8DDD0', borderRadius: 2, position: 'sticky', top: 80 }}>
-                <Typography variant="h6" sx={{ fontWeight: 700, color: '#2C1810', mb: 3, fontFamily: '"Playfair Display", serif' }}>
+              <Paper elevation={0} sx={{ p: 3, border: '1px solid #e0e0e0', borderRadius: 2, position: 'sticky', top: 80 }}>
+                <Typography variant="h6" sx={{ fontWeight: 700, color: '#1a1a1a', mb: 3, fontFamily: '"Playfair Display", serif' }}>
                   Order Summary
                 </Typography>
                 <Stack spacing={2} divider={<Divider />}>
@@ -427,26 +506,55 @@ const Checkout = () => {
                     <Box key={item.id} sx={{ display: 'flex', gap: 2, alignItems: 'center' }}>
                       <Box component="img" src={item.image} alt={item.name} sx={{ width: 60, height: 60, objectFit: 'cover', borderRadius: 1 }} />
                       <Box sx={{ flex: 1 }}>
-                        <Typography variant="body2" sx={{ fontWeight: 600, color: '#2C1810' }}>{item.name}</Typography>
+                        <Typography variant="body2" sx={{ fontWeight: 600, color: '#1a1a1a' }}>{item.name}</Typography>
                         <Typography variant="caption" color="textSecondary">Qty: {item.quantity}</Typography>
                       </Box>
                       <Typography variant="body2" sx={{ fontWeight: 600 }}>₦{(item.price * item.quantity).toLocaleString()}</Typography>
                     </Box>
                   ))}
                 </Stack>
-                <Divider sx={{ my: 2 }} />
-                <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 1 }}>
+
+                <Box sx={{ mt: 2, mb: 2 }}>
+                  <Typography variant="subtitle2" sx={{ fontWeight: 600, mb: 1, color: '#1a1a1a' }}>Coupon Code</Typography>
+                  <Stack direction="row" spacing={1}>
+                    <TextField size="small" fullWidth placeholder="Enter coupon code" value={couponInput}
+                      onChange={(e) => setCouponInput(e.target.value.toUpperCase())} />
+                    <Button variant="outlined" size="small" onClick={applyCoupon}
+                      sx={{ borderColor: '#1a1a1a', color: '#1a1a1a', whiteSpace: 'nowrap', fontWeight: 600 }}>
+                      Apply
+                    </Button>
+                  </Stack>
+                  {appliedCoupon && (
+                    <Typography variant="caption" sx={{ color: '#2e7d32', display: 'block', mt: 0.5, fontWeight: 500 }}>
+                      Coupon &quot;{appliedCoupon}&quot; applied — 10% off!
+                    </Typography>
+                  )}
+                  {couponError && (
+                    <Typography variant="caption" sx={{ color: '#c62828', display: 'block', mt: 0.5 }}>
+                      {couponError}
+                    </Typography>
+                  )}
+                </Box>
+
+                <Divider />
+                <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 1, mt: 2 }}>
                   <Typography color="textSecondary">Subtotal</Typography>
                   <Typography sx={{ fontWeight: 600 }}>₦{subtotal.toLocaleString()}</Typography>
                 </Box>
+                {couponDiscount > 0 && (
+                  <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 1 }}>
+                    <Typography color="textSecondary">Discount (10%)</Typography>
+                    <Typography sx={{ fontWeight: 600, color: '#2e7d32' }}>-₦{discount.toLocaleString()}</Typography>
+                  </Box>
+                )}
                 <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 1 }}>
                   <Typography color="textSecondary">Shipping</Typography>
                   <Typography sx={{ fontWeight: 600 }}>{shipping === 0 ? 'FREE' : `₦${shipping.toLocaleString()}`}</Typography>
                 </Box>
                 <Divider />
                 <Box sx={{ display: 'flex', justifyContent: 'space-between', mt: 2 }}>
-                  <Typography variant="h6" sx={{ fontWeight: 700, color: '#2C1810' }}>Total</Typography>
-                  <Typography variant="h6" sx={{ fontWeight: 700, color: '#8B7355' }}>₦{total.toLocaleString()}</Typography>
+                  <Typography variant="h6" sx={{ fontWeight: 700, color: '#1a1a1a' }}>Total</Typography>
+                  <Typography variant="h6" sx={{ fontWeight: 700, color: '#1a1a1a' }}>₦{total.toLocaleString()}</Typography>
                 </Box>
               </Paper>
             </Grid>

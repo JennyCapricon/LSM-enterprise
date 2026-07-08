@@ -20,16 +20,16 @@ const Wishlist = () => {
     return (
       <Container sx={{ py: 8, textAlign: 'center' }}>
         <SEO title="Wishlist" />
-        <FavoriteIcon sx={{ fontSize: 80, color: '#C4A882', mb: 2 }} />
-        <Typography variant="h5" sx={{ color: '#2C1810', mb: 1, fontFamily: '"Playfair Display", serif' }}>
+        <FavoriteIcon sx={{ fontSize: 80, color: '#ccc', mb: 2 }} />
+        <Typography variant="h5" sx={{ color: '#1a1a1a', mb: 1, fontFamily: '"Playfair Display", serif' }}>
           Your Wishlist is Empty
         </Typography>
-        <Typography variant="body1" sx={{ color: '#8B7355', mb: 3 }}>
+        <Typography variant="body1" sx={{ color: '#1a1a1a', mb: 3 }}>
           Save your favorite items here.
         </Typography>
         <Button
           variant="contained" onClick={() => navigate('/shop')}
-          sx={{ backgroundColor: '#8B7355', '&:hover': { backgroundColor: '#5C4A32' }, fontWeight: 600 }}
+          sx={{ backgroundColor: '#1a1a1a', '&:hover': { backgroundColor: '#000000' }, fontWeight: 600 }}
         >
           Browse Products
         </Button>
@@ -40,7 +40,7 @@ const Wishlist = () => {
   return (
     <Box sx={{ width: '100%' }}>
       <SEO title="Wishlist" />
-      <Box sx={{ background: 'linear-gradient(135deg, #5C4A32 0%, #8B7355 100%)', color: '#FAF6F1', py: 4, textAlign: 'center' }}>
+      <Box sx={{ background: 'linear-gradient(135deg, #000000 0%, #1a1a1a 100%)', color: '#f5f5f5', py: 4, textAlign: 'center' }}>
         <Container>
           <Typography variant="h4" sx={{ fontWeight: 700, fontFamily: '"Playfair Display", serif' }}>
             My Wishlist ({wishlist.length})
@@ -50,7 +50,7 @@ const Wishlist = () => {
       <Container sx={{ py: 4 }}>
         <Button
           startIcon={<ArrowBackIcon />} onClick={() => navigate('/shop')}
-          sx={{ color: '#8B7355', mb: 3, fontWeight: 600 }}
+          sx={{ color: '#1a1a1a', mb: 3, fontWeight: 600 }}
         >
           Continue Shopping
         </Button>
@@ -67,10 +67,10 @@ const Wishlist = () => {
               >
                 <CardMedia component="img" height="250" image={item.image} alt={item.name} sx={{ objectFit: 'cover' }} />
                 <CardContent sx={{ flexGrow: 1 }}>
-                  <Typography variant="h6" sx={{ fontWeight: 600, color: '#2C1810', fontFamily: '"Playfair Display", serif' }}>
+                  <Typography variant="h6" sx={{ fontWeight: 600, color: '#1a1a1a', fontFamily: '"Playfair Display", serif' }}>
                     {item.name}
                   </Typography>
-                  <Typography variant="h6" sx={{ fontWeight: 700, color: '#8B7355', mt: 1 }}>
+                  <Typography variant="h6" sx={{ fontWeight: 700, color: '#1a1a1a', mt: 1 }}>
                     ₦{item.price.toLocaleString()}
                   </Typography>
                 </CardContent>
@@ -78,13 +78,13 @@ const Wishlist = () => {
                   <Button
                     fullWidth variant="contained" startIcon={<ShoppingCartIcon />}
                     onClick={(e) => { e.stopPropagation(); addItem(item); }}
-                    sx={{ backgroundColor: '#8B7355', '&:hover': { backgroundColor: '#5C4A32' }, fontWeight: 600 }}
+                    sx={{ backgroundColor: '#1a1a1a', '&:hover': { backgroundColor: '#000000' }, fontWeight: 600 }}
                   >
                     Add to Cart
                   </Button>
                   <IconButton
                     onClick={(e) => { e.stopPropagation(); toggleItem(item); }}
-                    sx={{ color: '#D4A574' }}
+                    sx={{ color: '#ff6b6b' }}
                   >
                     <FavoriteIcon />
                   </IconButton>

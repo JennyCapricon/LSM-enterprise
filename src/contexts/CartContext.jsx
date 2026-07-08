@@ -1,4 +1,5 @@
 import React, { createContext, useContext, useReducer, useEffect } from 'react';
+import { useNotify } from './NotificationContext';
 
 const CartContext = createContext();
 
@@ -43,17 +44,21 @@ const cartReducer = (state, action) => {
 
 export const CartProvider = ({ children }) => {
   const [items, dispatch] = useReducer(cartReducer, [], loadCart);
+  const notify = useNotify();
 
   useEffect(() => {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(items));
   }, [items]);
 
   const addItem = (product) => {
+    const existing = items.find(item => item.id === product.id);
     dispatch({ type: 'ADD_ITEM', payload: product });
+    notify(existing ? `${product.name} quantity updated in cart` : `${product.name} added to cart`, 'success');
   };
 
   const removeItem = (id) => {
     dispatch({ type: 'REMOVE_ITEM', payload: id });
+    notify('Item removed from cart', 'info');
   };
 
   const updateQuantity = (id, quantity) => {
@@ -62,6 +67,7 @@ export const CartProvider = ({ children }) => {
 
   const clearCart = () => {
     dispatch({ type: 'CLEAR_CART' });
+    notify('Cart cleared', 'info');
   };
 
   const itemCount = items.reduce((sum, item) => sum + item.quantity, 0);

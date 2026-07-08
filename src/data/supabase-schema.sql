@@ -1,4 +1,4 @@
--- LSM Enterprise Supabase Schema
+-- JAY Supabase Schema
 -- Run this in your Supabase SQL editor after creating a project
 
 -- Products table

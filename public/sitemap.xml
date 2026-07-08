@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
-  <url><loc>https://lsmenterprise.com/</loc><priority>1.0</priority><changefreq>weekly</changefreq></url>
-  <url><loc>https://lsmenterprise.com/shop</loc><priority>0.9</priority><changefreq>daily</changefreq></url>
-  <url><loc>https://lsmenterprise.com/deals</loc><priority>0.8</priority><changefreq>daily</changefreq></url>
-  <url><loc>https://lsmenterprise.com/about</loc><priority>0.7</priority><changefreq>monthly</changefreq></url>
-  <url><loc>https://lsmenterprise.com/blog</loc><priority>0.7</priority><changefreq>weekly</changefreq></url>
-  <url><loc>https://lsmenterprise.com/contact</loc><priority>0.6</priority><changefreq>monthly</changefreq></url>
-  <url><loc>https://lsmenterprise.com/marketplace</loc><priority>0.8</priority><changefreq>weekly</changefreq></url>
-  <url><loc>https://lsmenterprise.com/vendors</loc><priority>0.7</priority><changefreq>weekly</changefreq></url>
-  <url><loc>https://lsmenterprise.com/privacy</loc><priority>0.3</priority><changefreq>yearly</changefreq></url>
-  <url><loc>https://lsmenterprise.com/terms</loc><priority>0.3</priority><changefreq>yearly</changefreq></url>
+  <url><loc>https://jayfabrics.com/</loc><priority>1.0</priority><changefreq>weekly</changefreq></url>
+  <url><loc>https://jayfabrics.com/shop</loc><priority>0.9</priority><changefreq>daily</changefreq></url>
+  <url><loc>https://jayfabrics.com/deals</loc><priority>0.8</priority><changefreq>daily</changefreq></url>
+  <url><loc>https://jayfabrics.com/about</loc><priority>0.7</priority><changefreq>monthly</changefreq></url>
+  <url><loc>https://jayfabrics.com/blog</loc><priority>0.7</priority><changefreq>weekly</changefreq></url>
+  <url><loc>https://jayfabrics.com/contact</loc><priority>0.6</priority><changefreq>monthly</changefreq></url>
+  <url><loc>https://jayfabrics.com/marketplace</loc><priority>0.8</priority><changefreq>weekly</changefreq></url>
+  <url><loc>https://jayfabrics.com/vendors</loc><priority>0.7</priority><changefreq>weekly</changefreq></url>
+  <url><loc>https://jayfabrics.com/privacy</loc><priority>0.3</priority><changefreq>yearly</changefreq></url>
+  <url><loc>https://jayfabrics.com/terms</loc><priority>0.3</priority><changefreq>yearly</changefreq></url>
 </urlset>

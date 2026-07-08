@@ -5,7 +5,9 @@ import {
   Button, TextField, Stack, Paper,
 } from '@mui/material';
 import ShoppingCartIcon from '@mui/icons-material/ShoppingCart';
+import ProductBadge from '../components/ProductBadge';
 import SEO from '../components/SEO';
+import { products } from '../data/products';
 import { useCart } from '../contexts/CartContext';
 
 const Deals = () => {
@@ -26,41 +28,41 @@ const Deals = () => {
     return () => clearInterval(timer);
   }, []);
 
-  const deals = [
-    { id: 10, name: 'Premium Brocade', originalPrice: 1500, dealPrice: 899, discount: 40, image: '/images/Brocade1.jpg' },
-    { id: 2, name: 'Classic Lace', originalPrice: 5000, dealPrice: 2999, discount: 40, image: '/images/Lace2.jpg' },
-    { id: 7, name: 'Elegant Lace', originalPrice: 2000, dealPrice: 1199, discount: 40, image: '/images/shop4.jpg' },
-    { id: 11, name: 'Pure Crepe', originalPrice: 4000, dealPrice: 2399, discount: 40, image: '/images/Crepe1.jpg' },
-  ];
+  const dealProducts = products.filter(p => p.discount > 0).slice(0, 4);
+  const deals = dealProducts.map(p => ({
+    id: p.id, name: p.name, originalPrice: p.comparePrice || Math.round(p.price / (1 - p.discount / 100)),
+    dealPrice: p.price, discount: p.discount, image: p.images[0],
+    soldQuantity: p.soldQuantity, stockQuantity: p.stockQuantity, status: p.status, isNew: p.isNew,
+  }));
 
   const TimeUnit = ({ value, label }) => (
     <Box sx={{ textAlign: 'center' }}>
       <Box
         sx={{
-          fontSize: '2.5rem', fontWeight: 700, color: '#FAF6F1',
-          backgroundColor: '#5C4A32', padding: '12px 20px', borderRadius: 2,
+          fontSize: '2.5rem', fontWeight: 700, color: '#f5f5f5',
+          backgroundColor: '#000000', padding: '12px 20px', borderRadius: 2,
           mb: 1, minWidth: '80px',
         }}
       >
         {String(value).padStart(2, '0')}
       </Box>
-      <Typography variant="caption" sx={{ color: '#8B7355' }}>{label}</Typography>
+      <Typography variant="caption" sx={{ color: '#1a1a1a' }}>{label}</Typography>
     </Box>
   );
 
   return (
     <Box sx={{ width: '100%' }}>
-      <SEO title="Deals & Offers" description="Limited time offers on premium African fabrics. Up to 40% off on Brocade, Lace, Crepe and more." />
+      <SEO title="Deals & Offers" description="Limited time offers on fashion apparel and accessories. Up to 40% off on selected items at JAY." />
       <Box
         sx={{
-          background: 'linear-gradient(135deg, #8B7355 0%, #D4A574 100%)',
-          color: '#FAF6F1', py: 6, textAlign: 'center',
+          background: 'linear-gradient(135deg, #1a1a1a 0%, #ff6b6b 100%)',
+          color: '#f5f5f5', py: 6, textAlign: 'center',
         }}
       >
         <Typography variant="h3" sx={{ fontWeight: 800, mb: 1, fontFamily: '"Playfair Display", serif' }}>
           Hot Deals & Offers
         </Typography>
-        <Typography variant="h6" sx={{ color: '#E8DDD0' }}>
+        <Typography variant="h6" sx={{ color: '#e0e0e0' }}>
           Limited time offers – Up to 40% off!
         </Typography>
       </Box>
@@ -69,8 +71,8 @@ const Deals = () => {
         <Paper
           elevation={0}
           sx={{
-            background: 'linear-gradient(135deg, #5C4A32 0%, #8B7355 100%)',
-            color: '#FAF6F1', p: 4, textAlign: 'center', mb: 6, borderRadius: 2,
+            background: 'linear-gradient(135deg, #000000 0%, #1a1a1a 100%)',
+            color: '#f5f5f5', p: 4, textAlign: 'center', mb: 6, borderRadius: 2,
           }}
         >
           <Typography variant="h5" sx={{ fontWeight: 700, mb: 3 }}>
@@ -94,10 +96,16 @@ const Deals = () => {
                   '&:hover': { transform: 'scale(1.03)', boxShadow: '0 12px 40px rgba(44,24,16,0.15)' },
                 }}
               >
+                <Box sx={{ position: 'absolute', top: 10, left: 10, zIndex: 1, display: 'flex', flexDirection: 'column', gap: 0.5 }}>
+                  {deal.status !== 'active' && <ProductBadge type={deal.status} />}
+                  {deal.stockQuantity === 0 && deal.status === 'active' && <ProductBadge type="sold-out" />}
+                  {deal.stockQuantity > 0 && deal.stockQuantity <= 5 && deal.status === 'active' && <ProductBadge type="almost-sold-out" />}
+                  {deal.isNew && <ProductBadge isNew />}
+                </Box>
                 <Box
                   sx={{
                     position: 'absolute', top: 10, right: 10,
-                    backgroundColor: '#D4A574', color: '#2C1810',
+                    backgroundColor: '#ff6b6b', color: '#1a1a1a',
                     padding: '6px 12px', borderRadius: 1, fontWeight: 700, zIndex: 1,
                   }}
                 >
@@ -109,14 +117,19 @@ const Deals = () => {
                   sx={{ objectFit: 'cover' }}
                 />
                 <CardContent sx={{ flexGrow: 1 }}>
-                  <Typography variant="h6" sx={{ fontWeight: 600, color: '#2C1810', fontFamily: '"Playfair Display", serif' }}>
+                  <Typography variant="h6" sx={{ fontWeight: 600, color: '#1a1a1a', fontFamily: '"Playfair Display", serif' }}>
                     {deal.name}
                   </Typography>
+                  {deal.soldQuantity > 0 && (
+                    <Typography variant="caption" sx={{ color: '#999', display: 'block', mt: 0.5, fontSize: '0.7rem' }}>
+                      {deal.soldQuantity} yards sold
+                    </Typography>
+                  )}
                   <Box sx={{ display: 'flex', gap: 1, alignItems: 'center', mt: 1 }}>
-                    <Typography variant="body1" sx={{ textDecoration: 'line-through', color: '#C4A882' }}>
+                    <Typography variant="body1" sx={{ textDecoration: 'line-through', color: '#ccc' }}>
                       ₦{deal.originalPrice.toLocaleString()}
                     </Typography>
-                    <Typography variant="h5" sx={{ fontWeight: 700, color: '#8B7355' }}>
+                    <Typography variant="h5" sx={{ fontWeight: 700, color: '#1a1a1a' }}>
                       ₦{deal.dealPrice.toLocaleString()}
                     </Typography>
                   </Box>
@@ -125,7 +138,7 @@ const Deals = () => {
                   <Button
                     fullWidth variant="contained" startIcon={<ShoppingCartIcon />}
                     onClick={() => addItem({ id: deal.id, name: deal.name, price: deal.dealPrice, image: deal.image })}
-                    sx={{ backgroundColor: '#D4A574', color: '#2C1810', fontWeight: 700, '&:hover': { backgroundColor: '#E8C9A0' } }}
+                    sx={{ backgroundColor: '#ff6b6b', color: '#1a1a1a', fontWeight: 700, '&:hover': { backgroundColor: '#E8C9A0' } }}
                   >
                     Shop Now
                   </Button>
@@ -139,8 +152,8 @@ const Deals = () => {
         <Paper
           elevation={0}
           sx={{
-            background: 'linear-gradient(135deg, #5C4A32 0%, #8B7355 100%)',
-            color: '#FAF6F1', p: 6, textAlign: 'center', borderRadius: 2,
+            background: 'linear-gradient(135deg, #000000 0%, #1a1a1a 100%)',
+            color: '#f5f5f5', p: 6, textAlign: 'center', borderRadius: 2,
           }}
         >
           <Typography variant="h5" sx={{ fontWeight: 700, mb: 3 }}>
@@ -152,15 +165,15 @@ const Deals = () => {
               type="email" variant="outlined" fullWidth
               sx={{
                 '& .MuiOutlinedInput-root': {
-                  backgroundColor: '#FAF6F1',
-                  '& fieldset': { borderColor: '#C4A882' },
+                  backgroundColor: '#f5f5f5',
+                  '& fieldset': { borderColor: '#ccc' },
                 },
               }}
             />
             <Button
               variant="contained"
               size="large"
-              sx={{ backgroundColor: '#D4A574', color: '#2C1810', fontWeight: 700, minWidth: 150, '&:hover': { backgroundColor: '#E8C9A0' } }}
+              sx={{ backgroundColor: '#ff6b6b', color: '#1a1a1a', fontWeight: 700, minWidth: 150, '&:hover': { backgroundColor: '#E8C9A0' } }}
             >
               Subscribe
             </Button>

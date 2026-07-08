@@ -30,7 +30,7 @@ const Contact = () => {
           from_email: formData.email,
           subject: formData.subject,
           message: formData.message,
-          to_email: 'hello@lsmenterprises.com',
+          to_email: 'hello@jayfabrics.com',
         },
         'user_default'
       );
@@ -45,20 +45,20 @@ const Contact = () => {
 
   const contactInfo = [
     { icon: <LocationOnIcon sx={{ fontSize: 40 }} />, title: 'Visit Us', details: ['123 Fashion Street', 'Lagos, Nigeria'] },
-    { icon: <PhoneIcon sx={{ fontSize: 40 }} />, title: 'Call Us', details: ['+234 123 456 7890', '+234 098 765 4321'] },
-    { icon: <EmailIcon sx={{ fontSize: 40 }} />, title: 'Email Us', details: ['hello@lsmenterprises.com', 'support@lsmenterprises.com'] },
+    { icon: <PhoneIcon sx={{ fontSize: 40 }} />, title: 'Call Us', details: ['09027089929', '08038777330'] },
+    { icon: <EmailIcon sx={{ fontSize: 40 }} />, title: 'Email Us', details: ['hello@jayfabrics.com', 'support@jayfabrics.com'] },
     { icon: <AccessTimeIcon sx={{ fontSize: 40 }} />, title: 'Business Hours', details: ['Mon-Fri: 9am - 6pm', 'Sat: 10am - 4pm'] },
   ];
 
   return (
     <Box sx={{ width: '100%' }}>
-      <SEO title="Contact Us" description="Get in touch with LSM Enterprise. We're based in Lagos, Nigeria." />
-      <Box sx={{ background: 'linear-gradient(135deg, #5C4A32 0%, #8B7355 100%)', color: '#FAF6F1', py: 8, textAlign: 'center' }}>
+      <SEO title="Contact Us" description="Get in touch with JAY. We're based in Lagos, Nigeria — serving customers worldwide." />
+      <Box sx={{ background: 'linear-gradient(135deg, #000000 0%, #1a1a1a 100%)', color: '#f5f5f5', py: 8, textAlign: 'center' }}>
         <Container>
           <Typography variant="h3" sx={{ fontWeight: 800, mb: 2, fontFamily: '"Playfair Display", serif' }}>
             Get in Touch
           </Typography>
-          <Typography variant="h6" sx={{ color: '#E8DDD0' }}>
+          <Typography variant="h6" sx={{ color: '#e0e0e0' }}>
             We'd love to hear from you! Send us a message and we'll respond as soon as possible.
           </Typography>
         </Container>
@@ -67,17 +67,17 @@ const Contact = () => {
       <Container sx={{ py: 8 }}>
         <Grid container spacing={4}>
           <Grid item xs={12} md={5}>
-            <Typography variant="h5" sx={{ fontWeight: 700, mb: 3, color: '#2C1810', fontFamily: '"Playfair Display", serif' }}>
+            <Typography variant="h5" sx={{ fontWeight: 700, mb: 3, color: '#1a1a1a', fontFamily: '"Playfair Display", serif' }}>
               Contact Information
             </Typography>
             <Stack spacing={3}>
               {contactInfo.map((info, index) => (
-                <Card key={index} sx={{ border: '1px solid #E8DDD0', boxShadow: 'none' }}>
+                <Card key={index} sx={{ border: '1px solid #e0e0e0', boxShadow: 'none' }}>
                   <CardContent>
                     <Box sx={{ display: 'flex', gap: 2, alignItems: 'flex-start' }}>
-                      <Box sx={{ color: '#8B7355' }}>{info.icon}</Box>
+                      <Box sx={{ color: '#1a1a1a' }}>{info.icon}</Box>
                       <Box>
-                        <Typography variant="h6" sx={{ fontWeight: 700, mb: 1, color: '#2C1810' }}>{info.title}</Typography>
+                        <Typography variant="h6" sx={{ fontWeight: 700, mb: 1, color: '#1a1a1a' }}>{info.title}</Typography>
                         {info.details.map((detail, idx) => (
                           <Typography key={idx} variant="body2" sx={{ color: '#6B5B4F' }}>{detail}</Typography>
                         ))}
@@ -90,8 +90,8 @@ const Contact = () => {
           </Grid>
 
           <Grid item xs={12} md={7}>
-            <Paper elevation={0} sx={{ p: 4, border: '1px solid #E8DDD0', borderRadius: 2 }}>
-              <Typography variant="h5" sx={{ fontWeight: 700, mb: 3, color: '#2C1810', fontFamily: '"Playfair Display", serif' }}>
+            <Paper elevation={0} sx={{ p: 4, border: '1px solid #e0e0e0', borderRadius: 2 }}>
+              <Typography variant="h5" sx={{ fontWeight: 700, mb: 3, color: '#1a1a1a', fontFamily: '"Playfair Display", serif' }}>
                 Send us a Message
               </Typography>
               {submitted && (
@@ -108,7 +108,7 @@ const Contact = () => {
                   <Button
                     type="submit" variant="contained" size="large" disabled={sending}
                     startIcon={<SendIcon />}
-                    sx={{ backgroundColor: '#8B7355', '&:hover': { backgroundColor: '#5C4A32' }, fontWeight: 600 }}
+                    sx={{ backgroundColor: '#1a1a1a', '&:hover': { backgroundColor: '#000000' }, fontWeight: 600 }}
                   >
                     {sending ? 'Sending...' : 'Send Message'}
                   </Button>
@@ -119,12 +119,12 @@ const Contact = () => {
         </Grid>
       </Container>
 
-      <Box sx={{ width: '100%', py: 8, backgroundColor: '#FAF6F1' }}>
+      <Box sx={{ width: '100%', py: 8, backgroundColor: '#f5f5f5' }}>
         <Container>
-          <Typography variant="h5" sx={{ fontWeight: 700, mb: 3, textAlign: 'center', color: '#2C1810', fontFamily: '"Playfair Display", serif' }}>
+          <Typography variant="h5" sx={{ fontWeight: 700, mb: 3, textAlign: 'center', color: '#1a1a1a', fontFamily: '"Playfair Display", serif' }}>
             Find Us on the Map
           </Typography>
-          <Paper elevation={0} sx={{ height: 400, borderRadius: 2, overflow: 'hidden', border: '1px solid #E8DDD0' }}>
+          <Paper elevation={0} sx={{ height: 400, borderRadius: 2, overflow: 'hidden', border: '1px solid #e0e0e0' }}>
             <iframe
               src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3964.576638258066!2d3.376718!3d6.465422!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x103b8b2ae68280c1%3A0xdc9e87a367c3d9cb!2sLagos%2C%20Nigeria!5e0!3m2!1sen!2sus!4v1648477654321!5m2!1sen!2sus"
               width="100%" height="100%" style={{ border: 0 }} allowFullScreen="" loading="lazy" title="Store Location"
@@ -134,14 +134,14 @@ const Contact = () => {
       </Box>
 
       <Container sx={{ py: 8 }}>
-        <Typography variant="h5" sx={{ fontWeight: 700, mb: 4, textAlign: 'center', color: '#2C1810', fontFamily: '"Playfair Display", serif' }}>
+        <Typography variant="h5" sx={{ fontWeight: 700, mb: 4, textAlign: 'center', color: '#1a1a1a', fontFamily: '"Playfair Display", serif' }}>
           Frequently Asked Questions
         </Typography>
         <Grid container spacing={3}>
           {faqs.map((faq, index) => (
             <Grid item xs={12} md={6} key={index}>
-              <Paper elevation={0} sx={{ p: 3, height: '100%', border: '1px solid #E8DDD0', borderRadius: 2 }}>
-                <Typography variant="h6" sx={{ fontWeight: 700, mb: 2, color: '#2C1810' }}>
+              <Paper elevation={0} sx={{ p: 3, height: '100%', border: '1px solid #e0e0e0', borderRadius: 2 }}>
+                <Typography variant="h6" sx={{ fontWeight: 700, mb: 2, color: '#1a1a1a' }}>
                   {faq.question}
                 </Typography>
                 <Typography variant="body2" sx={{ color: '#6B5B4F' }}>

@@ -2,16 +2,21 @@ import React, { useState, useMemo } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import {
   Container, Box, Typography, Grid, Card, CardMedia, CardContent, CardActions,
-  Button, FormControl, InputLabel, Select, MenuItem, Rating, Stack, IconButton, Tooltip,
+  Button, FormControl, InputLabel, Select, MenuItem, Stack, Chip,
 } from '@mui/material';
 import ShoppingCartIcon from '@mui/icons-material/ShoppingCart';
-import FavoriteBorderIcon from '@mui/icons-material/FavoriteBorder';
-import VisibilityIcon from '@mui/icons-material/Visibility';
+import ProductBadge from '../components/ProductBadge';
 import SEO from '../components/SEO';
-import QuickViewModal from '../components/QuickViewModal';
 import { products, categories } from '../data/products';
 import { useCart } from '../contexts/CartContext';
-import { useWishlist } from '../contexts/WishlistContext';
+
+const PRICE_RANGES = [
+  { label: 'All Prices', min: 0, max: Infinity },
+  { label: '₦1,000 – ₦1,499', min: 1000, max: 1499 },
+  { label: '₦1,500 – ₦1,999', min: 1500, max: 1999 },
+  { label: '₦2,000 – ₦2,499', min: 2000, max: 2499 },
+  { label: '₦2,500+', min: 2500, max: Infinity },
+];
 
 const Shop = () => {
   const navigate = useNavigate();
@@ -19,165 +24,153 @@ const Shop = () => {
   const categoryParam = searchParams.get('category') || 'All';
   const [filter, setFilter] = useState(categoryParam === 'All' ? 'All' : categoryParam);
   const [sortBy, setSortBy] = useState('featured');
+  const [priceRange, setPriceRange] = useState(0);
   const { addItem } = useCart();
-  const { toggleItem, isInWishlist } = useWishlist();
-  const [quickViewProduct, setQuickViewProduct] = useState(null);
 
   const filteredProducts = useMemo(() => {
     let result = filter === 'All' ? [...products] : products.filter(p => p.category === filter);
+    const range = PRICE_RANGES[priceRange];
+    if (range && range.min > 0 || range?.max !== Infinity) {
+      result = result.filter(p => p.price >= range.min && p.price <= range.max);
+    }
     switch (sortBy) {
       case 'price-low': result.sort((a, b) => a.price - b.price); break;
       case 'price-high': result.sort((a, b) => b.price - a.price); break;
-      case 'rating': result.sort((a, b) => b.rating - a.rating); break;
       default: break;
     }
     return result;
-  }, [filter, sortBy]);
+  }, [filter, sortBy, priceRange]);
+
+  const clearFilters = () => {
+    setFilter('All');
+    setPriceRange(0);
+    setSortBy('featured');
+  };
 
   return (
     <Box sx={{ width: '100%' }}>
-      <SEO title="Shop" description="Browse our collection of premium African fabrics. Jonkoso, Lace, Silk, Scuba, Duchess, Crepe, Stockflow, Stripe, Cubana, Vintage, and more." />
-      <Box
-        sx={{
-          background: 'linear-gradient(135deg, #5C4A32 0%, #8B7355 100%)',
-          color: '#FAF6F1', py: 6, textAlign: 'center',
-        }}
-      >
+      <SEO title="Shop Fabrics" description="Browse our curated collection of premium fabrics by the yard. Lace, silk, cotton, denim, brocade, and more — for all your sewing projects." />
+      <Box sx={{ backgroundColor: '#1a1a1a', color: '#fff', py: 6, textAlign: 'center' }}>
         <Container>
-          <Typography variant="h3" sx={{ fontWeight: 800, mb: 2, fontFamily: '"Playfair Display", serif' }}>
-            Shop Our Collection
+          <Typography variant="h3" sx={{ fontWeight: 700, mb: 2, fontSize: { xs: '1.8rem', md: '2.8rem' } }}>
+            Shop Fabrics
           </Typography>
-          <Typography variant="h6" sx={{ color: '#E8DDD0' }}>
-            Discover premium fabrics for every occasion
+          <Typography variant="body1" sx={{ color: '#ccc', maxWidth: 500, mx: 'auto' }}>
+            Premium fabrics by the yard — find the perfect material for your next creation
           </Typography>
         </Container>
       </Box>
 
       <Container sx={{ py: 4 }}>
-        <Stack direction={{ xs: 'column', sm: 'row' }} spacing={2} sx={{ mb: 4 }}>
-          <FormControl sx={{ minWidth: 200 }}>
-            <InputLabel sx={{ color: '#6B5B4F' }}>Category</InputLabel>
-            <Select
-              value={filter}
-              label="Category"
-              onChange={(e) => setFilter(e.target.value)}
-              sx={{ '&.MuiOutlinedInput-root': { '& fieldset': { borderColor: '#C4A882' } } }}
-            >
-              <MenuItem value="All">All Categories</MenuItem>
+        <Stack direction={{ xs: 'column', sm: 'row' }} spacing={2} sx={{ mb: 4 }} alignItems="flex-start" flexWrap="wrap">
+          <FormControl sx={{ minWidth: 180 }} size="small">
+            <InputLabel>Category</InputLabel>
+            <Select value={filter} label="Category" onChange={(e) => setFilter(e.target.value)}>
+              <MenuItem value="All">All Fabrics</MenuItem>
               {categories.map(cat => (
                 <MenuItem key={cat.id} value={cat.id}>{cat.name}</MenuItem>
               ))}
             </Select>
           </FormControl>
-          <FormControl sx={{ minWidth: 200 }}>
-            <InputLabel sx={{ color: '#6B5B4F' }}>Sort By</InputLabel>
-            <Select
-              value={sortBy}
-              label="Sort By"
-              onChange={(e) => setSortBy(e.target.value)}
-              sx={{ '&.MuiOutlinedInput-root': { '& fieldset': { borderColor: '#C4A882' } } }}
-            >
+          <FormControl sx={{ minWidth: 160 }} size="small">
+            <InputLabel>Sort By</InputLabel>
+            <Select value={sortBy} label="Sort By" onChange={(e) => setSortBy(e.target.value)}>
               <MenuItem value="featured">Featured</MenuItem>
               <MenuItem value="price-low">Price: Low to High</MenuItem>
               <MenuItem value="price-high">Price: High to Low</MenuItem>
-              <MenuItem value="rating">Top Rated</MenuItem>
             </Select>
           </FormControl>
+          <FormControl sx={{ minWidth: 150 }} size="small">
+            <InputLabel>Price Range</InputLabel>
+            <Select value={priceRange} label="Price Range" onChange={(e) => setPriceRange(e.target.value)}>
+              {PRICE_RANGES.map((r, i) => (
+                <MenuItem key={i} value={i}>{r.label}</MenuItem>
+              ))}
+            </Select>
+          </FormControl>
+          {(filter !== 'All' || priceRange > 0) && (
+            <Button size="small" onClick={clearFilters} sx={{ color: '#666', fontWeight: 500 }}>
+              Clear Filters
+            </Button>
+          )}
         </Stack>
 
-        <Grid container spacing={3}>
-          {filteredProducts.map((product) => (
-            <Grid item xs={12} sm={6} md={4} lg={4} key={product.id}>
+        <Grid container spacing={2}>
+          {filteredProducts.map((fabric) => (
+            <Grid item xs={12} sm={6} md={4} lg={3} key={fabric.id}>
               <Card
                 sx={{
                   height: '100%', display: 'flex', flexDirection: 'column', cursor: 'pointer',
-                  position: 'relative', transition: 'transform 0.3s, box-shadow 0.3s',
-                  '&:hover': { transform: 'translateY(-8px)', boxShadow: '0 12px 40px rgba(44,24,16,0.15)' },
+                  position: 'relative', transition: 'all 0.3s',
+                  border: '1px solid', borderColor: 'divider', boxShadow: 'none',
+                  '&:hover': { transform: 'translateY(-4px)', boxShadow: '0 8px 24px rgba(0,0,0,0.08)' },
                 }}
-                onClick={() => navigate(`/shop/${product.slug}`)}
+                onClick={() => navigate(`/shop/${fabric.slug}`)}
               >
-                {product.discount > 0 && (
-                  <Box
-                    sx={{
-                      position: 'absolute', top: 10, right: 10,
-                      backgroundColor: '#D4A574', color: '#2C1810',
-                      padding: '4px 12px', borderRadius: 1, fontWeight: 700, zIndex: 1,
-                    }}
-                  >
-                    -{product.discount}%
+                <Box sx={{ position: 'absolute', top: 8, left: 8, zIndex: 1, display: 'flex', flexDirection: 'column', gap: 0.5 }}>
+                  {fabric.status !== 'active' && (
+                    <ProductBadge type={fabric.status} />
+                  )}
+                  {fabric.stockQuantity === 0 && fabric.status === 'active' && (
+                    <ProductBadge type="sold-out" />
+                  )}
+                  {fabric.stockQuantity > 0 && fabric.stockQuantity <= 5 && fabric.status === 'active' && (
+                    <ProductBadge type="almost-sold-out" />
+                  )}
+                  {fabric.isNew && <ProductBadge isNew />}
+                </Box>
+                {fabric.discount > 0 && (
+                  <Box sx={{ position: 'absolute', top: 8, right: 8, zIndex: 1, backgroundColor: '#ff6b6b', color: '#fff', padding: '2px 8px', fontSize: '0.7rem', fontWeight: 700 }}>
+                    -{fabric.discount}%
                   </Box>
                 )}
-                <CardMedia
-                  component="img"
-                  height="250"
-                  image={product.images[0]}
-                  alt={product.name}
-                  sx={{ objectFit: 'cover' }}
-                />
-                <CardContent sx={{ flexGrow: 1 }}>
-                  <Typography variant="h6" component="div" sx={{ fontWeight: 600, color: '#2C1810', fontFamily: '"Playfair Display", serif' }}>
-                    {product.name}
-                  </Typography>
-                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 1, mt: 1 }}>
-                    <Rating value={product.rating} readOnly precision={0.1} size="small" sx={{ '& .MuiRating-iconFilled': { color: '#D4A574' } }} />
-                    <Typography variant="caption" color="textSecondary">({product.rating})</Typography>
-                  </Box>
-                  <Box sx={{ display: 'flex', gap: 1, alignItems: 'center' }}>
-                    {product.comparePrice && (
-                      <Typography variant="body2" sx={{ textDecoration: 'line-through', color: '#C4A882' }}>
-                        ₦{product.comparePrice.toLocaleString()}
+                <Box sx={{ position: 'relative', overflow: 'hidden', backgroundColor: '#f5f5f5' }}>
+                  <CardMedia component="img" height="240" image={fabric.images[0]} alt={fabric.name} sx={{ objectFit: 'cover', transition: 'transform 0.5s', '&:hover': { transform: 'scale(1.06)' } }} />
+                </Box>
+                <CardContent sx={{ flexGrow: 1, px: 2, pt: 2, pb: 1 }}>
+                  <Typography variant="overline" sx={{ color: '#999', fontSize: '0.6rem', letterSpacing: '0.1em' }}>{fabric.category}</Typography>
+                  <Typography variant="body2" sx={{ fontWeight: 600, mb: 1, fontSize: '0.9rem' }}>{fabric.name}</Typography>
+                  {fabric.soldQuantity > 0 && (
+                    <Typography variant="caption" sx={{ color: '#999', display: 'block', mb: 0.5, fontSize: '0.65rem' }}>
+                      {fabric.soldQuantity} yards sold
+                    </Typography>
+                  )}
+                  <Stack direction="row" spacing={1} alignItems="baseline">
+                    <Typography variant="h6" sx={{ fontWeight: 700, fontSize: '1rem', color: '#ff6b6b' }}>
+                      ₦{fabric.price.toFixed(2)}
+                    </Typography>
+                    <Typography variant="caption" sx={{ color: '#999' }}>{fabric.unit}</Typography>
+                    {fabric.comparePrice && (
+                      <Typography variant="body2" sx={{ textDecoration: 'line-through', color: '#ccc', fontSize: '0.8rem' }}>
+                        ₦{fabric.comparePrice.toFixed(2)}
                       </Typography>
                     )}
-                    <Typography variant="h6" sx={{ fontWeight: 700, color: '#8B7355' }}>
-                      ₦{product.price.toLocaleString()}
-                    </Typography>
-                  </Box>
+                  </Stack>
+                  <Stack direction="row" spacing={0.5} sx={{ mt: 1 }} flexWrap="wrap" useFlexGap>
+                    {fabric.styleInspiration.slice(0, 2).map((style, i) => (
+                      <Chip key={i} label={style} size="small" variant="outlined" sx={{ borderColor: '#ddd', fontSize: '0.65rem', height: 22 }} />
+                    ))}
+                  </Stack>
                 </CardContent>
-                <CardActions sx={{ pt: 0, px: 2, pb: 2, flexDirection: 'column', gap: 1 }}>
-                  <Box sx={{ display: 'flex', gap: 1, width: '100%' }}>
-                    <Button
-                      fullWidth variant="contained" startIcon={<ShoppingCartIcon />}
-                      onClick={(e) => { e.stopPropagation(); addItem({ id: product.id, name: product.name, price: product.price, image: product.images[0] }); }}
-                      sx={{ backgroundColor: '#8B7355', '&:hover': { backgroundColor: '#5C4A32' }, fontWeight: 600 }}
-                    >
-                      Add to Cart
-                    </Button>
-                    <IconButton
-                      onClick={(e) => { e.stopPropagation(); toggleItem({ id: product.id, name: product.name, price: product.price, image: product.images[0] }); }}
-                      sx={{ color: isInWishlist(product.id) ? '#D4A574' : '#C4A882' }}
-                    >
-                      <FavoriteBorderIcon />
-                    </IconButton>
-                  </Box>
-                  <Tooltip title="Quick View" arrow>
-                    <Button
-                      fullWidth
-                      variant="text"
-                      size="small"
-                      startIcon={<VisibilityIcon />}
-                      onClick={(e) => { e.stopPropagation(); setQuickViewProduct(product); }}
-                      sx={{ color: '#8B7355', fontWeight: 500, textTransform: 'none', '&:hover': { backgroundColor: 'rgba(139,115,85,0.08)' } }}
-                    >
-                      Quick View
-                    </Button>
-                  </Tooltip>
+                <CardActions sx={{ px: 2, pb: 2, pt: 0 }}>
+                  <Button fullWidth variant="contained" size="small" startIcon={<ShoppingCartIcon />}
+                    onClick={(e) => { e.stopPropagation(); addItem({ id: fabric.id, name: fabric.name, price: fabric.price, image: fabric.images[0] }); }}
+                    sx={{ backgroundColor: '#1a1a1a', '&:hover': { backgroundColor: '#000' }, fontWeight: 600, fontSize: '0.8rem' }}>
+                    Add to Cart
+                  </Button>
                 </CardActions>
               </Card>
             </Grid>
           ))}
         </Grid>
+
         {filteredProducts.length === 0 && (
           <Box sx={{ textAlign: 'center', py: 8 }}>
-            <Typography variant="h6" sx={{ color: '#8B7355' }}>No products found in this category.</Typography>
+            <Typography variant="h6" sx={{ color: 'text.secondary', mb: 1 }}>No fabrics match your filters.</Typography>
+            <Button onClick={clearFilters} sx={{ color: 'text.primary', fontWeight: 600 }}>Clear Filters</Button>
           </Box>
         )}
       </Container>
-
-      <QuickViewModal
-        open={Boolean(quickViewProduct)}
-        onClose={() => setQuickViewProduct(null)}
-        product={quickViewProduct}
-      />
     </Box>
   );
 };

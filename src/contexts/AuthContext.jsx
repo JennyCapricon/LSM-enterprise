@@ -29,13 +29,20 @@ export const AuthProvider = ({ children }) => {
     return true;
   };
 
+  const googleLogin = (googleUser) => {
+    const userData = { id: googleUser.sub, email: googleUser.email, name: googleUser.name, picture: googleUser.picture };
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(userData));
+    setUser(userData);
+    return true;
+  };
+
   const logout = () => {
     localStorage.removeItem(STORAGE_KEY);
     setUser(null);
   };
 
   return (
-    <AuthContext.Provider value={{ user, loading, login, register, logout, isAuthenticated: !!user }}>
+    <AuthContext.Provider value={{ user, loading, login, register, googleLogin, logout, isAuthenticated: !!user }}>
       {children}
     </AuthContext.Provider>
   );

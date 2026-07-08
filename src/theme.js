@@ -3,38 +3,44 @@ import { createTheme } from '@mui/material/styles';
 const theme = createTheme({
   palette: {
     primary: {
-      main: '#8B7355',
-      light: '#C4A882',
-      dark: '#5C4A32',
-      contrastText: '#FFFFFF',
+      main: '#1a1a2e',
+      light: '#2d2d4e',
+      dark: '#0f0f1a',
+      contrastText: '#ffffff',
     },
     secondary: {
-      main: '#D4A574',
-      light: '#E8C9A0',
-      dark: '#B8864E',
-      contrastText: '#1A1A1A',
+      main: '#ff6b6b',
+      light: '#ff9e9e',
+      dark: '#e05555',
+      contrastText: '#ffffff',
+    },
+    accent: {
+      main: '#f7c948',
+      light: '#fadb7a',
+      dark: '#d4a828',
     },
     background: {
-      default: '#FAF6F1',
-      paper: '#FFFFFF',
+      default: '#f8f6f2',
+      paper: '#ffffff',
     },
     text: {
-      primary: '#2C1810',
-      secondary: '#6B5B4F',
+      primary: '#1a1a2e',
+      secondary: '#6b6b7b',
     },
-    divider: '#E8DDD0',
+    divider: '#e8e4de',
   },
   typography: {
-    fontFamily: '"Roboto", "Helvetica", "Arial", sans-serif',
-    h1: { fontFamily: '"Playfair Display", "Georgia", serif', fontWeight: 700 },
-    h2: { fontFamily: '"Playfair Display", "Georgia", serif', fontWeight: 700 },
-    h3: { fontFamily: '"Playfair Display", "Georgia", serif', fontWeight: 600 },
-    h4: { fontFamily: '"Playfair Display", "Georgia", serif', fontWeight: 600 },
-    h5: { fontFamily: '"Playfair Display", "Georgia", serif', fontWeight: 600 },
-    h6: { fontFamily: '"Playfair Display", "Georgia", serif', fontWeight: 600 },
+    fontFamily: '"Inter", "Roboto", "Helvetica", "Arial", sans-serif',
+    h1: { fontFamily: '"Inter", "Helvetica", "Arial", sans-serif', fontWeight: 800, letterSpacing: '-0.03em' },
+    h2: { fontFamily: '"Inter", "Helvetica", "Arial", sans-serif', fontWeight: 800, letterSpacing: '-0.02em' },
+    h3: { fontFamily: '"Inter", "Helvetica", "Arial", sans-serif', fontWeight: 700, letterSpacing: '-0.02em' },
+    h4: { fontFamily: '"Inter", "Helvetica", "Arial", sans-serif', fontWeight: 700, letterSpacing: '-0.01em' },
+    h5: { fontFamily: '"Inter", "Helvetica", "Arial", sans-serif', fontWeight: 600 },
+    h6: { fontFamily: '"Inter", "Helvetica", "Arial", sans-serif', fontWeight: 600 },
+    button: { fontWeight: 600, letterSpacing: '0.02em' },
   },
   shape: {
-    borderRadius: 8,
+    borderRadius: 6,
   },
   components: {
     MuiButton: {
@@ -42,26 +48,30 @@ const theme = createTheme({
         root: {
           textTransform: 'none',
           fontWeight: 600,
-          padding: '10px 24px',
+          padding: '8px 24px',
+          borderRadius: 6,
         },
         contained: {
-          boxShadow: 'none',
-          '&:hover': { boxShadow: '0 4px 12px rgba(139, 115, 85, 0.3)' },
+          boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
+          '&:hover': { boxShadow: '0 4px 16px rgba(0,0,0,0.2)' },
+        },
+        outlined: {
+          '&:hover': { boxShadow: 'none' },
         },
       },
     },
     MuiCard: {
       styleOverrides: {
         root: {
-          boxShadow: '0 2px 12px rgba(44, 24, 16, 0.08)',
-          borderRadius: 12,
+          boxShadow: '0 1px 3px rgba(0,0,0,0.06)',
+          borderRadius: 6,
         },
       },
     },
     MuiAppBar: {
       styleOverrides: {
         root: {
-          boxShadow: '0 2px 20px rgba(44, 24, 16, 0.1)',
+          boxShadow: '0 1px 0 rgba(0,0,0,0.06)',
         },
       },
     },
@@ -69,6 +79,13 @@ const theme = createTheme({
       styleOverrides: {
         root: {
           fontWeight: 500,
+        },
+      },
+    },
+    MuiPaper: {
+      styleOverrides: {
+        root: {
+          backgroundImage: 'none',
         },
       },
     },

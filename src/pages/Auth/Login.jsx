@@ -3,12 +3,13 @@ import { useNavigate, Link as RouterLink } from 'react-router-dom';
 import {
   Container, Box, Typography, TextField, Button, Paper, Stack, Link, Alert, Divider,
 } from '@mui/material';
+import { GoogleLogin } from '@react-oauth/google';
 import SEO from '../../components/SEO';
 import { useAuth } from '../../contexts/AuthContext';
 
 const Login = () => {
   const navigate = useNavigate();
-  const { login } = useAuth();
+  const { login, googleLogin } = useAuth();
   const [form, setForm] = useState({ email: '', password: '' });
   const [error, setError] = useState('');
 
@@ -25,15 +26,21 @@ const Login = () => {
     navigate('/account');
   };
 
+  const handleGoogleSuccess = (credentialResponse) => {
+    const decoded = JSON.parse(atob(credentialResponse.credential.split('.')[1]));
+    googleLogin(decoded);
+    navigate('/account');
+  };
+
   return (
     <Container maxWidth="sm" sx={{ py: 8 }}>
       <SEO title="Sign In" />
-      <Paper elevation={0} sx={{ p: 4, border: '1px solid #E8DDD0', borderRadius: 2 }}>
-        <Typography variant="h4" sx={{ fontWeight: 700, color: '#2C1810', mb: 1, textAlign: 'center', fontFamily: '"Playfair Display", serif' }}>
+      <Paper elevation={0} sx={{ p: 4, border: '1px solid #e0e0e0', borderRadius: 2 }}>
+        <Typography variant="h4" sx={{ fontWeight: 700, color: '#1a1a1a', mb: 1, textAlign: 'center' }}>
           Welcome Back
         </Typography>
-        <Typography variant="body1" sx={{ color: '#8B7355', mb: 4, textAlign: 'center' }}>
-          Sign in to your LSM Enterprise account
+        <Typography variant="body1" sx={{ color: '#1a1a1a', mb: 4, textAlign: 'center' }}>
+          Sign in to your JAY account
         </Typography>
 
         {error && <Alert severity="error" sx={{ mb: 2 }}>{error}</Alert>}
@@ -44,7 +51,7 @@ const Login = () => {
             <TextField fullWidth label="Password" name="password" type="password" value={form.password} onChange={handleChange} required />
             <Button
               type="submit" fullWidth variant="contained" size="large"
-              sx={{ backgroundColor: '#8B7355', '&:hover': { backgroundColor: '#5C4A32' }, fontWeight: 700, py: 1.5 }}
+              sx={{ backgroundColor: '#1a1a2e', '&:hover': { backgroundColor: '#2d2d4e' }, fontWeight: 700, py: 1.5 }}
             >
               Sign In
             </Button>
@@ -52,19 +59,22 @@ const Login = () => {
         </form>
 
         <Box sx={{ textAlign: 'center', mt: 2 }}>
-          <Link component={RouterLink} to="/register" underline="hover" sx={{ color: '#8B7355', cursor: 'pointer' }}>
+          <Link component={RouterLink} to="/register" underline="hover" sx={{ color: '#1a1a2e', cursor: 'pointer' }}>
             Don't have an account? Sign up
           </Link>
         </Box>
 
         <Divider sx={{ my: 3 }} />
 
-        <Button
-          fullWidth variant="outlined"
-          sx={{ borderColor: '#C4A882', color: '#6B5B4F', fontWeight: 600 }}
-        >
-          Continue with Google
-        </Button>
+        <Box sx={{ display: 'flex', justifyContent: 'center' }}>
+          <GoogleLogin
+            onSuccess={handleGoogleSuccess}
+            onError={() => setError('Google sign-in failed. Please try again.')}
+            size="large"
+            text="continue_with"
+            shape="rectangular"
+          />
+        </Box>
       </Paper>
     </Container>
   );

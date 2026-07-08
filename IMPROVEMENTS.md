@@ -1,4 +1,4 @@
-# LSM Enterprise - Complete Transformation
+# JAY - Complete Transformation
 
 ## Overview
 Complete rebuild from a static brochure site to a full-featured e-commerce marketplace for African fashion fabrics. All changes listed below.

@@ -1,3 +1,3 @@
 User-agent: *
 Allow: /
-Sitemap: https://lsmenterprise.com/sitemap.xml
+Sitemap: https://jayfabrics.com/sitemap.xml

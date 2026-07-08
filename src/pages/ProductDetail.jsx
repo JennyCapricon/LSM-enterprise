@@ -1,209 +1,201 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import {
-  Container, Box, Typography, Grid, Button, Rating, Chip, Stack, IconButton,
-  Divider, Paper,
+  Container, Box, Typography, Grid, Button, Chip, Stack, IconButton, Divider,
 } from '@mui/material';
 import ShoppingCartIcon from '@mui/icons-material/ShoppingCart';
 import FavoriteBorderIcon from '@mui/icons-material/FavoriteBorder';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import LocalShippingIcon from '@mui/icons-material/LocalShipping';
-import AssignmentReturnIcon from '@mui/icons-material/AssignmentReturn';
+import ContentCutIcon from '@mui/icons-material/ContentCut';
 import VerifiedUserIcon from '@mui/icons-material/VerifiedUser';
+import ProductBadge from '../components/ProductBadge';
 import SEO from '../components/SEO';
-import { products } from '../data/products';
+import { products, categories } from '../data/products';
 import { useCart } from '../contexts/CartContext';
 import { useWishlist } from '../contexts/WishlistContext';
+import { useRecentlyViewed } from '../contexts/RecentlyViewedContext';
 
 const ProductDetail = () => {
   const { slug } = useParams();
   const navigate = useNavigate();
   const { addItem } = useCart();
   const { toggleItem, isInWishlist } = useWishlist();
+  const { addItem: addRecent } = useRecentlyViewed();
   const [selectedImage, setSelectedImage] = useState(0);
 
-  const product = products.find(p => p.slug === slug);
+  const fabric = products.find(p => p.slug === slug);
 
-  if (!product) {
+  useEffect(() => {
+    if (fabric) {
+      addRecent({ id: fabric.id, name: fabric.name, price: fabric.price, image: fabric.images[0], slug: fabric.slug, category: fabric.category });
+    }
+  }, [fabric, addRecent]);
+
+  if (!fabric) {
     return (
       <Container sx={{ py: 8, textAlign: 'center' }}>
-        <Typography variant="h4" sx={{ color: '#8B7355', mb: 2 }}>Product Not Found</Typography>
-        <Button variant="contained" onClick={() => navigate('/shop')} sx={{ backgroundColor: '#8B7355' }}>
-          Back to Shop
-        </Button>
+        <Typography variant="h5" sx={{ color: '#666', mb: 2 }}>Fabric Not Found</Typography>
+        <Button variant="contained" onClick={() => navigate('/shop')} sx={{ backgroundColor: '#1a1a1a' }}>Back to Shop</Button>
       </Container>
     );
   }
 
   const relatedProducts = products
-    .filter(p => p.category === product.category && p.id !== product.id)
+    .filter(p => p.category === fabric.category && p.id !== fabric.id)
     .slice(0, 4);
 
   return (
     <Box sx={{ width: '100%' }}>
-      <SEO title={product.name} description={product.description} image={product.images[0]} />
+      <SEO title={fabric.name} description={fabric.description} image={fabric.images[0]} />
       <Container sx={{ py: 4 }}>
-        <Button
-          startIcon={<ArrowBackIcon />}
-          onClick={() => navigate('/shop')}
-          sx={{ color: '#8B7355', mb: 2, fontWeight: 600 }}
-        >
+        <Button startIcon={<ArrowBackIcon />} onClick={() => navigate('/shop')} sx={{ color: '#666', mb: 2, fontWeight: 500, '&:hover': { color: '#1a1a1a' } }}>
           Back to Shop
         </Button>
 
         <Grid container spacing={4}>
-          {/* Image Gallery */}
           <Grid item xs={12} md={6}>
-            <Box
-              component="img"
-              src={product.images[selectedImage]}
-              alt={product.name}
-              sx={{
-                width: '100%', height: { xs: 300, md: 500 },
-                objectFit: 'cover', borderRadius: 2,
-                boxShadow: '0 4px 20px rgba(44,24,16,0.12)',
-              }}
-            />
-            {product.images.length > 1 && (
-              <Stack direction="row" spacing={1} sx={{ mt: 2 }}>
-                {product.images.map((img, idx) => (
-                  <Box
-                    key={idx}
-                    component="img"
-                    src={img}
-                    alt={`${product.name} view ${idx + 1}`}
+            <Box component="img" src={fabric.images[selectedImage]} alt={fabric.name}
+              sx={{ width: '100%', height: { xs: 300, md: 480 }, objectFit: 'cover', backgroundColor: '#f5f5f5' }} />
+            {fabric.images.length > 1 && (
+              <Stack direction="row" spacing={1} sx={{ mt: 1.5, overflow: 'auto' }}>
+                {fabric.images.map((img, idx) => (
+                  <Box key={idx} component="img" src={img} alt=""
                     onClick={() => setSelectedImage(idx)}
-                    sx={{
-                      width: 80, height: 80, objectFit: 'cover', borderRadius: 1,
-                      cursor: 'pointer', border: selectedImage === idx ? '2px solid #8B7355' : '2px solid transparent',
-                      opacity: selectedImage === idx ? 1 : 0.6,
-                      transition: 'all 0.2s',
-                      '&:hover': { opacity: 1 },
-                    }}
-                  />
+                    sx={{ width: 70, height: 70, objectFit: 'cover', cursor: 'pointer', border: selectedImage === idx ? '2px solid #1a1a1a' : '2px solid transparent', opacity: selectedImage === idx ? 1 : 0.5, flexShrink: 0 }} />
                 ))}
               </Stack>
             )}
           </Grid>
 
-          {/* Product Info */}
           <Grid item xs={12} md={6}>
-            <Chip
-              label={product.category.toUpperCase()}
-              size="small"
-              sx={{ backgroundColor: '#E8DDD0', color: '#5C4A32', fontWeight: 600, mb: 1 }}
-            />
-            <Typography variant="h4" sx={{ fontWeight: 700, color: '#2C1810', mb: 1, fontFamily: '"Playfair Display", serif' }}>
-              {product.name}
-            </Typography>
-            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 2 }}>
-              <Rating value={product.rating} readOnly precision={0.1} sx={{ '& .MuiRating-iconFilled': { color: '#D4A574' } }} />
-              <Typography variant="body2" color="textSecondary">
-                {product.rating} ({product.reviews} reviews)
+            <Typography variant="overline" sx={{ color: '#999', fontSize: '0.65rem', letterSpacing: '0.1em' }}>{fabric.category}</Typography>
+            <Typography variant="h3" sx={{ fontWeight: 700, mb: 1.5, fontSize: { xs: '1.5rem', md: '2rem' } }}>{fabric.name}</Typography>
+
+            <Stack direction="row" spacing={1.5} alignItems="baseline" sx={{ mb: 2 }}>
+              <Typography variant="h3" sx={{ fontWeight: 700, color: '#ff6b6b', fontSize: { xs: '1.5rem', md: '2rem' } }}>
+                ₦{fabric.price.toFixed(2)}
               </Typography>
-            </Box>
-
-            <Box sx={{ display: 'flex', gap: 2, alignItems: 'baseline', mb: 3 }}>
-              <Typography variant="h4" sx={{ fontWeight: 700, color: '#8B7355' }}>
-                ₦{product.price.toLocaleString()}
-              </Typography>
-              {product.comparePrice && (
-                <Typography variant="h6" sx={{ textDecoration: 'line-through', color: '#C4A882' }}>
-                  ₦{product.comparePrice.toLocaleString()}
-                </Typography>
+              <Typography variant="body1" sx={{ color: '#999' }}>{fabric.unit}</Typography>
+              {fabric.comparePrice && (
+                <>
+                  <Typography variant="body1" sx={{ textDecoration: 'line-through', color: '#ccc' }}>₦{fabric.comparePrice.toFixed(2)}</Typography>
+                  {fabric.discount > 0 && (
+                    <Chip label={`-${fabric.discount}%`} size="small" sx={{ backgroundColor: '#ff6b6b', color: '#fff', fontWeight: 700, fontSize: '0.7rem' }} />
+                  )}
+                </>
               )}
-              {product.discount > 0 && (
-                <Chip label={`-${product.discount}% OFF`} size="small" sx={{ backgroundColor: '#D4A574', color: '#2C1810', fontWeight: 700 }} />
-              )}
-            </Box>
+            </Stack>
 
-            <Typography variant="body1" sx={{ color: '#6B5B4F', lineHeight: 1.8, mb: 3 }}>
-              {product.description}
-            </Typography>
+            <Typography variant="body1" sx={{ color: '#666', lineHeight: 1.7, mb: 3 }}>{fabric.description}</Typography>
 
-            {product.details && (
-              <Box sx={{ mb: 3 }}>
-                <Typography variant="subtitle1" sx={{ fontWeight: 700, color: '#2C1810', mb: 1 }}>
-                  Product Details
+            <Typography variant="subtitle1" sx={{ fontWeight: 600, mb: 1 }}>Fabric Details</Typography>
+            <Stack spacing={0.5} sx={{ mb: 3 }}>
+              {fabric.details.map((detail, idx) => (
+                <Typography key={idx} variant="body2" sx={{ color: '#666', display: 'flex', alignItems: 'center', gap: 1 }}>
+                  <Box sx={{ width: 5, height: 5, borderRadius: '50%', backgroundColor: '#ff6b6b', flexShrink: 0 }} />
+                  {detail}
                 </Typography>
-                <Stack spacing={0.5}>
-                  {product.details.map((detail, idx) => (
-                    <Typography key={idx} variant="body2" sx={{ color: '#6B5B4F', display: 'flex', alignItems: 'center', gap: 1 }}>
-                      <Box sx={{ width: 6, height: 6, borderRadius: '50%', backgroundColor: '#D4A574', flexShrink: 0 }} />
-                      {detail}
-                    </Typography>
-                  ))}
-                </Stack>
-              </Box>
+              ))}
+            </Stack>
+
+            <Typography variant="subtitle1" sx={{ fontWeight: 600, mb: 1 }}>Style Ideas</Typography>
+            <Stack direction="row" spacing={0.5} sx={{ mb: 3 }} flexWrap="wrap" useFlexGap>
+              {fabric.styleInspiration.map((style, i) => (
+                <Chip key={i} label={style} variant="outlined" sx={{ borderColor: '#ddd', fontSize: '0.8rem' }} />
+              ))}
+            </Stack>
+
+            <Stack direction="row" spacing={1} sx={{ mb: 2 }} flexWrap="wrap" useFlexGap>
+              {fabric.status !== 'active' && <ProductBadge type={fabric.status} />}
+              {fabric.stockQuantity === 0 && fabric.status === 'active' && <ProductBadge type="sold-out" />}
+              {fabric.stockQuantity > 0 && fabric.stockQuantity <= 5 && fabric.status === 'active' && <ProductBadge type="almost-sold-out" />}
+              {fabric.discount > 0 && fabric.stockQuantity > 0 && <ProductBadge type="new-deal" discount={fabric.discount} />}
+              {fabric.isNew && <ProductBadge isNew />}
+            </Stack>
+
+            {fabric.inStock && fabric.stockQuantity > 0 ? (
+              <Chip icon={<VerifiedUserIcon />} label={`In Stock (${fabric.stockQuantity} yards) — Ready to Ship`} sx={{ backgroundColor: '#e8f5e9', color: '#2e7d32', fontWeight: 600, mb: 2 }} />
+            ) : fabric.stockQuantity === 0 && fabric.status === 'active' ? (
+              <Chip label="Sold Out — No Stock Available" sx={{ backgroundColor: '#ffebee', color: '#c62828', fontWeight: 600, mb: 2 }} />
+            ) : fabric.status === 'finished' ? (
+              <Chip label="Finished — No Longer Produced" sx={{ backgroundColor: '#f3e5f5', color: '#4a148c', fontWeight: 600, mb: 2 }} />
+            ) : fabric.status === 'out-of-market' ? (
+              <Chip label="Out of Market — Discontinued" sx={{ backgroundColor: '#f3e5f5', color: '#4a148c', fontWeight: 600, mb: 2 }} />
+            ) : (
+              <Chip label="Out of Stock" sx={{ backgroundColor: '#ffebee', color: '#c62828', fontWeight: 600, mb: 2 }} />
             )}
 
-            <Stack direction="row" spacing={2} sx={{ mb: 3 }}>
-              <Button
-                variant="contained"
-                size="large"
-                startIcon={<ShoppingCartIcon />}
-                onClick={() => addItem({ id: product.id, name: product.name, price: product.price, image: product.images[0] })}
-                sx={{ backgroundColor: '#8B7355', '&:hover': { backgroundColor: '#5C4A32' }, fontWeight: 600, px: 4 }}
-              >
+            {fabric.soldQuantity > 0 && (
+              <Typography variant="body2" sx={{ color: '#666', mb: 1.5 }}>
+                {fabric.soldQuantity} yards sold{fabric.totalStock ? ` out of ${fabric.totalStock}` : ''}
+              </Typography>
+            )}
+            {fabric.stockQuantity > 0 && fabric.stockQuantity <= 10 && fabric.status === 'active' && (
+              <Typography variant="body2" sx={{ color: '#e65100', fontWeight: 600, mb: 1.5, display: 'flex', alignItems: 'center', gap: 0.5 }}>
+                ⚡ Only {fabric.stockQuantity} yards left — order soon!
+              </Typography>
+            )}
+
+            <Stack direction="row" spacing={2} sx={{ mb: 3, mt: 1 }}>
+              <Button variant="contained" size="large" startIcon={<ShoppingCartIcon />}
+                onClick={() => addItem({ id: fabric.id, name: fabric.name, price: fabric.price, image: fabric.images[0] })}
+                sx={{ backgroundColor: '#1a1a1a', '&:hover': { backgroundColor: '#000' }, fontWeight: 600, px: 4, py: 1.5 }}>
                 Add to Cart
               </Button>
-              <IconButton
-                onClick={() => toggleItem({ id: product.id, name: product.name, price: product.price, image: product.images[0] })}
-                sx={{ color: isInWishlist(product.id) ? '#D4A574' : '#C4A882', border: '1px solid #C4A882' }}
-              >
+              <IconButton onClick={() => toggleItem({ id: fabric.id, name: fabric.name, price: fabric.price, image: fabric.images[0] })}
+                sx={{ color: isInWishlist(fabric.id) ? '#ff6b6b' : '#ccc', border: '1px solid', borderColor: 'divider' }}>
                 <FavoriteBorderIcon />
               </IconButton>
             </Stack>
 
-            {product.inStock ? (
-              <Chip icon={<VerifiedUserIcon />} label="In Stock" sx={{ backgroundColor: '#E8F5E9', color: '#2E7D32', fontWeight: 600, mb: 2 }} />
-            ) : (
-              <Chip label="Out of Stock" sx={{ backgroundColor: '#FFEBEE', color: '#C62828', fontWeight: 600, mb: 2 }} />
-            )}
-
             <Divider sx={{ my: 2 }} />
 
-            <Stack direction="row" spacing={3} sx={{ flexWrap: 'wrap', gap: 2 }}>
+            <Stack direction="row" spacing={3} flexWrap="wrap" useFlexGap>
               <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                <LocalShippingIcon sx={{ color: '#8B7355' }} />
-                <Typography variant="body2" sx={{ color: '#6B5B4F' }}>Free Shipping</Typography>
+                <LocalShippingIcon sx={{ color: '#666', fontSize: 20 }} />
+                <Typography variant="body2" sx={{ color: '#666' }}>Fast Shipping</Typography>
               </Box>
               <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                <AssignmentReturnIcon sx={{ color: '#8B7355' }} />
-                <Typography variant="body2" sx={{ color: '#6B5B4F' }}>30-Day Returns</Typography>
+                <ContentCutIcon sx={{ color: '#666', fontSize: 20 }} />
+                <Typography variant="body2" sx={{ color: '#666' }}>Sold by the Yard</Typography>
               </Box>
               <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                <VerifiedUserIcon sx={{ color: '#8B7355' }} />
-                <Typography variant="body2" sx={{ color: '#6B5B4F' }}>Secure Checkout</Typography>
+                <VerifiedUserIcon sx={{ color: '#666', fontSize: 20 }} />
+                <Typography variant="body2" sx={{ color: '#666' }}>Quality Guaranteed</Typography>
               </Box>
             </Stack>
           </Grid>
         </Grid>
 
-        {/* Related Products */}
         {relatedProducts.length > 0 && (
           <Box sx={{ mt: 8 }}>
-            <Typography variant="h5" sx={{ fontWeight: 700, color: '#2C1810', mb: 3, fontFamily: '"Playfair Display", serif' }}>
-              Related Products
+            <Typography variant="h5" sx={{ fontWeight: 700, mb: 3, fontSize: { xs: '1.2rem', md: '1.5rem' } }}>
+              More {categories.find(c => c.id === fabric.category)?.name || 'Fabrics'}
             </Typography>
-            <Grid container spacing={3}>
+            <Grid container spacing={2}>
               {relatedProducts.map(rp => (
-                <Grid item xs={12} sm={6} md={3} key={rp.id}>
-                  <Paper
-                    elevation={0}
+                <Grid item xs={6} md={3} key={rp.id}>
+                  <Box
                     onClick={() => navigate(`/shop/${rp.slug}`)}
-                    sx={{
-                      cursor: 'pointer', borderRadius: 2, overflow: 'hidden',
-                      border: '1px solid #E8DDD0', transition: 'all 0.3s',
-                      '&:hover': { transform: 'translateY(-4px)', boxShadow: '0 8px 24px rgba(44,24,16,0.12)' },
-                    }}
-                  >
-                    <Box component="img" src={rp.images[0]} alt={rp.name} sx={{ width: '100%', height: 200, objectFit: 'cover' }} />
-                    <Box sx={{ p: 2 }}>
-                      <Typography variant="subtitle1" sx={{ fontWeight: 600, color: '#2C1810' }}>{rp.name}</Typography>
-                      <Typography variant="h6" sx={{ fontWeight: 700, color: '#8B7355' }}>₦{rp.price.toLocaleString()}</Typography>
+                    sx={{ cursor: 'pointer', border: '1px solid', borderColor: 'divider', transition: 'all 0.3s', position: 'relative', '&:hover': { transform: 'translateY(-4px)', boxShadow: '0 8px 24px rgba(0,0,0,0.08)' } }}>
+                    <Box sx={{ position: 'absolute', top: 6, left: 6, zIndex: 1, display: 'flex', flexDirection: 'column', gap: 0.3 }}>
+                      {rp.status !== 'active' && <ProductBadge type={rp.status} />}
+                      {rp.stockQuantity === 0 && rp.status === 'active' && <ProductBadge type="sold-out" />}
+                      {rp.stockQuantity > 0 && rp.stockQuantity <= 5 && rp.status === 'active' && <ProductBadge type="almost-sold-out" />}
+                      {rp.isNew && <ProductBadge isNew />}
                     </Box>
-                  </Paper>
+                    <Box component="img" src={rp.images[0]} alt={rp.name} sx={{ width: '100%', height: 200, objectFit: 'cover', backgroundColor: '#f5f5f5' }} />
+                    <Box sx={{ p: 2 }}>
+                      <Typography variant="body2" sx={{ fontWeight: 600, fontSize: '0.85rem' }}>{rp.name}</Typography>
+                      {rp.soldQuantity > 0 && (
+                        <Typography variant="caption" sx={{ color: '#999', display: 'block', fontSize: '0.65rem' }}>
+                          {rp.soldQuantity} sold
+                        </Typography>
+                      )}
+                      <Typography variant="h6" sx={{ fontWeight: 700, fontSize: '0.95rem', color: '#ff6b6b' }}>₦{rp.price.toFixed(2)}</Typography>
+                    </Box>
+                  </Box>
                 </Grid>
               ))}
             </Grid>

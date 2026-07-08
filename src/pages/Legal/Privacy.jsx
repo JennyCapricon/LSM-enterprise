@@ -10,23 +10,23 @@ const Privacy = () => {
     { title: 'Data Security', content: 'We implement industry-standard security measures including SSL encryption, secure payment processing via Paystack, and regular security audits to protect your personal information.' },
     { title: 'Your Rights', content: 'You have the right to access, correct, or delete your personal data. You can update your information in your account settings or contact us to request data deletion.' },
     { title: 'Cookies', content: 'We use essential cookies for site functionality and analytics cookies to improve your experience. You can control cookie preferences through your browser settings.' },
-    { title: 'Contact Us', content: 'If you have questions about this privacy policy, please contact us at hello@lsmenterprises.com or visit our Contact page.' },
+    { title: 'Contact Us', content: 'If you have questions about this privacy policy, please contact us at hello@jayfabrics.com or visit our Contact page.' },
   ];
 
   return (
     <Container maxWidth="md" sx={{ py: 8 }}>
       <SEO title="Privacy Policy" />
-      <Typography variant="h3" sx={{ fontWeight: 700, mb: 2, color: '#2C1810', textAlign: 'center', fontFamily: '"Playfair Display", serif' }}>
+      <Typography variant="h3" sx={{ fontWeight: 700, mb: 2, color: '#1a1a1a', textAlign: 'center', fontFamily: '"Playfair Display", serif' }}>
         Privacy Policy
       </Typography>
-      <Typography variant="body1" sx={{ color: '#8B7355', mb: 4, textAlign: 'center' }}>
+      <Typography variant="body1" sx={{ color: '#1a1a1a', mb: 4, textAlign: 'center' }}>
         Last updated: January 2024
       </Typography>
-      <Paper elevation={0} sx={{ p: 4, border: '1px solid #E8DDD0', borderRadius: 2 }}>
+      <Paper elevation={0} sx={{ p: 4, border: '1px solid #e0e0e0', borderRadius: 2 }}>
         <Stack spacing={3}>
           {sections.map((section, index) => (
             <Box key={index}>
-              <Typography variant="h6" sx={{ fontWeight: 700, mb: 1, color: '#2C1810', fontFamily: '"Playfair Display", serif' }}>
+              <Typography variant="h6" sx={{ fontWeight: 700, mb: 1, color: '#1a1a1a', fontFamily: '"Playfair Display", serif' }}>
                 {section.title}
               </Typography>
               <Typography variant="body1" sx={{ color: '#6B5B4F', lineHeight: 1.8 }}>

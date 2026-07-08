@@ -43,15 +43,15 @@ const MeasurementGuide = () => {
       />
       <Box
         sx={{
-          background: 'linear-gradient(135deg, #5C4A32 0%, #8B7355 100%)',
-          color: '#FAF6F1', py: 6, textAlign: 'center',
+          background: 'linear-gradient(135deg, #000000 0%, #1a1a1a 100%)',
+          color: '#f5f5f5', py: 6, textAlign: 'center',
         }}
       >
         <Container>
           <Typography variant="h3" sx={{ fontWeight: 800, mb: 2, fontFamily: '"Playfair Display", serif' }}>
             Fabric Measurement Guide
           </Typography>
-          <Typography variant="h6" sx={{ color: '#E8DDD0' }}>
+          <Typography variant="h6" sx={{ color: '#e0e0e0' }}>
             Calculate the perfect yardage for your next project
           </Typography>
         </Container>
@@ -60,8 +60,8 @@ const MeasurementGuide = () => {
       <Container sx={{ py: 6 }}>
         <Grid container spacing={4}>
           <Grid item xs={12} md={5}>
-            <Paper elevation={0} sx={{ p: 4, border: '1px solid #E8DDD0', borderRadius: 2 }}>
-              <Typography variant="h5" sx={{ fontWeight: 700, color: '#2C1810', mb: 3, fontFamily: '"Playfair Display", serif' }}>
+            <Paper elevation={0} sx={{ p: 4, border: '1px solid #e0e0e0', borderRadius: 2 }}>
+              <Typography variant="h5" sx={{ fontWeight: 700, color: '#1a1a1a', mb: 3, fontFamily: '"Playfair Display", serif' }}>
                 Estimate Your Fabric Needs
               </Typography>
               <FormControl fullWidth sx={{ mb: 3 }}>
@@ -70,7 +70,7 @@ const MeasurementGuide = () => {
                   value={selectedGarment}
                   label="Garment Type"
                   onChange={(e) => setSelectedGarment(e.target.value)}
-                  sx={{ '&.MuiOutlinedInput-root': { '& fieldset': { borderColor: '#C4A882' } } }}
+                  sx={{ '&.MuiOutlinedInput-root': { '& fieldset': { borderColor: '#ccc' } } }}
                 >
                   {garmentOptions.map(g => (
                     <MenuItem key={g.value} value={g.value}>{g.label}</MenuItem>
@@ -83,7 +83,7 @@ const MeasurementGuide = () => {
                   value={selectedSize}
                   label="Size"
                   onChange={(e) => setSelectedSize(e.target.value)}
-                  sx={{ '&.MuiOutlinedInput-root': { '& fieldset': { borderColor: '#C4A882' } } }}
+                  sx={{ '&.MuiOutlinedInput-root': { '& fieldset': { borderColor: '#ccc' } } }}
                 >
                   {Object.entries(sizeLabels).map(([val, label]) => (
                     <MenuItem key={val} value={val}>{label}</MenuItem>
@@ -100,17 +100,17 @@ const MeasurementGuide = () => {
                   <Typography variant="body2" sx={{ color: '#6B5B4F', mb: 1 }}>
                     Recommended Fabric (44-45" width)
                   </Typography>
-                  <Typography variant="h3" sx={{ fontWeight: 800, color: '#8B7355' }}>
+                  <Typography variant="h3" sx={{ fontWeight: 800, color: '#1a1a1a' }}>
                     {calculation.yards[selectedSize]} yards
                   </Typography>
-                  <Typography variant="caption" sx={{ color: '#8B7355', mt: 1, display: 'block' }}>
+                  <Typography variant="caption" sx={{ color: '#1a1a1a', mt: 1, display: 'block' }}>
                     ≈ {Math.round(calculation.yards[selectedSize] * 91.44)} cm
                   </Typography>
                   <Button
                     variant="contained"
                     fullWidth
                     onClick={() => window.open('/shop', '_self')}
-                    sx={{ mt: 2, backgroundColor: '#8B7355', '&:hover': { backgroundColor: '#5C4A32' }, fontWeight: 600 }}
+                    sx={{ mt: 2, backgroundColor: '#1a1a1a', '&:hover': { backgroundColor: '#000000' }, fontWeight: 600 }}
                   >
                     Browse Fabrics
                   </Button>
@@ -120,16 +120,16 @@ const MeasurementGuide = () => {
           </Grid>
 
           <Grid item xs={12} md={7}>
-            <Typography variant="h5" sx={{ fontWeight: 700, color: '#2C1810', mb: 3, fontFamily: '"Playfair Display", serif' }}>
+            <Typography variant="h5" sx={{ fontWeight: 700, color: '#1a1a1a', mb: 3, fontFamily: '"Playfair Display", serif' }}>
               Complete Yardage Reference
             </Typography>
-            <TableContainer component={Paper} elevation={0} sx={{ border: '1px solid #E8DDD0', borderRadius: 2, mb: 4 }}>
+            <TableContainer component={Paper} elevation={0} sx={{ border: '1px solid #e0e0e0', borderRadius: 2, mb: 4 }}>
               <Table size="small">
                 <TableHead>
-                  <TableRow sx={{ backgroundColor: '#8B7355' }}>
-                    <TableCell sx={{ color: '#FAF6F1', fontWeight: 700 }}>Garment Type</TableCell>
+                  <TableRow sx={{ backgroundColor: '#1a1a1a' }}>
+                    <TableCell sx={{ color: '#f5f5f5', fontWeight: 700 }}>Garment Type</TableCell>
                     {Object.entries(sizeLabels).map(([val, label]) => (
-                      <TableCell key={val} align="center" sx={{ color: '#FAF6F1', fontWeight: 600, fontSize: '0.75rem' }}>
+                      <TableCell key={val} align="center" sx={{ color: '#f5f5f5', fontWeight: 600, fontSize: '0.75rem' }}>
                         {val.toUpperCase()}
                       </TableCell>
                     ))}
@@ -145,7 +145,7 @@ const MeasurementGuide = () => {
                         backgroundColor: g.value === selectedGarment ? 'rgba(212,165,116,0.15)' : 'inherit',
                       }}
                     >
-                      <TableCell sx={{ fontWeight: 600, color: '#2C1810', fontSize: '0.85rem' }}>
+                      <TableCell sx={{ fontWeight: 600, color: '#1a1a1a', fontSize: '0.85rem' }}>
                         {g.label}
                       </TableCell>
                       {Object.entries(g.yards).map(([size, yards]) => (
@@ -167,13 +167,13 @@ const MeasurementGuide = () => {
               </Table>
             </TableContainer>
 
-            <Typography variant="h5" sx={{ fontWeight: 700, color: '#2C1810', mb: 2, fontFamily: '"Playfair Display", serif' }}>
+            <Typography variant="h5" sx={{ fontWeight: 700, color: '#1a1a1a', mb: 2, fontFamily: '"Playfair Display", serif' }}>
               Pro Tips
             </Typography>
             <Box sx={{ pl: 2 }}>
               {tips.map((tip, idx) => (
                 <Box key={idx} sx={{ display: 'flex', gap: 1.5, mb: 1.5 }}>
-                  <Typography sx={{ color: '#D4A574', fontWeight: 700 }}>•</Typography>
+                  <Typography sx={{ color: '#ff6b6b', fontWeight: 700 }}>•</Typography>
                   <Typography variant="body2" sx={{ color: '#6B5B4F', lineHeight: 1.6 }}>{tip}</Typography>
                 </Box>
               ))}

@@ -28,28 +28,28 @@ const Marketplace = () => {
 
   return (
     <Box sx={{ width: '100%' }}>
-      <SEO title="Marketplace" description="Join LSM Enterprise marketplace. Connect with buyers and sellers of premium African fabrics." />
-      <Box sx={{ background: 'linear-gradient(135deg, #5C4A32 0%, #8B7355 100%)', color: '#FAF6F1', py: 8, textAlign: 'center' }}>
+      <SEO title="Marketplace" description="Join JAY marketplace. Connect with fashion brands, designers, and shoppers worldwide." />
+      <Box sx={{ background: 'linear-gradient(135deg, #000000 0%, #1a1a1a 100%)', color: '#f5f5f5', py: 8, textAlign: 'center' }}>
         <Container>
           <StorefrontIcon sx={{ fontSize: 64, mb: 2 }} />
           <Typography variant="h3" sx={{ fontWeight: 800, mb: 2, fontFamily: '"Playfair Display", serif' }}>
-            LSM Marketplace
+            JAY Marketplace
           </Typography>
-          <Typography variant="h6" sx={{ color: '#E8DDD0', mb: 4, maxWidth: 600, mx: 'auto' }}>
-            The premier marketplace for African fashion fabrics. Connect vendors with buyers on a secure, trusted platform.
+          <Typography variant="h6" sx={{ color: '#e0e0e0', mb: 4, maxWidth: 600, mx: 'auto' }}>
+            The modern marketplace for fashion. Connect brands with shoppers on a trusted platform.
           </Typography>
           <Stack direction={{ xs: 'column', sm: 'row' }} spacing={2} justifyContent="center">
             <Button
               variant="contained" size="large"
               onClick={() => navigate('/register')}
-              sx={{ backgroundColor: '#D4A574', color: '#2C1810', fontWeight: 700, '&:hover': { backgroundColor: '#E8C9A0' } }}
+              sx={{ backgroundColor: '#ff6b6b', color: '#1a1a1a', fontWeight: 700, '&:hover': { backgroundColor: '#E8C9A0' } }}
             >
               Start Selling
             </Button>
             <Button
               variant="outlined" size="large"
               onClick={() => navigate('/shop')}
-              sx={{ borderColor: '#D4A574', color: '#FAF6F1', fontWeight: 600, '&:hover': { backgroundColor: 'rgba(212,165,116,0.15)' } }}
+              sx={{ borderColor: '#ff6b6b', color: '#f5f5f5', fontWeight: 600, '&:hover': { backgroundColor: 'rgba(212,165,116,0.15)' } }}
             >
               Start Buying
             </Button>
@@ -58,15 +58,15 @@ const Marketplace = () => {
       </Box>
 
       <Container sx={{ py: 8 }}>
-        <Typography variant="h4" sx={{ fontWeight: 700, mb: 4, textAlign: 'center', color: '#2C1810', fontFamily: '"Playfair Display", serif' }}>
+        <Typography variant="h4" sx={{ fontWeight: 700, mb: 4, textAlign: 'center', color: '#1a1a1a', fontFamily: '"Playfair Display", serif' }}>
           Why Join Our Marketplace?
         </Typography>
         <Grid container spacing={3}>
           {benefits.map((benefit, index) => (
             <Grid item xs={12} sm={6} md={3} key={index}>
-              <Paper elevation={0} sx={{ p: 3, textAlign: 'center', border: '1px solid #E8DDD0', borderRadius: 2, height: '100%' }}>
-                <Box sx={{ color: '#8B7355', mb: 2 }}>{benefit.icon}</Box>
-                <Typography variant="h6" sx={{ fontWeight: 700, mb: 1, color: '#2C1810', fontFamily: '"Playfair Display", serif' }}>
+              <Paper elevation={0} sx={{ p: 3, textAlign: 'center', border: '1px solid #e0e0e0', borderRadius: 2, height: '100%' }}>
+                <Box sx={{ color: '#1a1a1a', mb: 2 }}>{benefit.icon}</Box>
+                <Typography variant="h6" sx={{ fontWeight: 700, mb: 1, color: '#1a1a1a', fontFamily: '"Playfair Display", serif' }}>
                   {benefit.title}
                 </Typography>
                 <Typography variant="body2" sx={{ color: '#6B5B4F' }}>{benefit.description}</Typography>
@@ -76,9 +76,9 @@ const Marketplace = () => {
         </Grid>
       </Container>
 
-      <Box sx={{ backgroundColor: '#FAF6F1', py: 8, borderTop: '1px solid #E8DDD0', borderBottom: '1px solid #E8DDD0' }}>
+      <Box sx={{ backgroundColor: '#f5f5f5', py: 8, borderTop: '1px solid #e0e0e0', borderBottom: '1px solid #e0e0e0' }}>
         <Container>
-          <Typography variant="h4" sx={{ fontWeight: 700, mb: 6, textAlign: 'center', color: '#2C1810', fontFamily: '"Playfair Display", serif' }}>
+          <Typography variant="h4" sx={{ fontWeight: 700, mb: 6, textAlign: 'center', color: '#1a1a1a', fontFamily: '"Playfair Display", serif' }}>
             How It Works
           </Typography>
           <Grid container spacing={3}>
@@ -88,14 +88,14 @@ const Marketplace = () => {
                   <Box
                     sx={{
                       width: 64, height: 64, borderRadius: '50%',
-                      backgroundColor: '#D4A574', color: '#2C1810',
+                      backgroundColor: '#ff6b6b', color: '#1a1a1a',
                       display: 'flex', alignItems: 'center', justifyContent: 'center',
                       fontSize: '1.5rem', fontWeight: 800, mx: 'auto', mb: 2,
                     }}
                   >
                     {step.number}
                   </Box>
-                  <Typography variant="h6" sx={{ fontWeight: 700, mb: 1, color: '#2C1810', fontFamily: '"Playfair Display", serif' }}>
+                  <Typography variant="h6" sx={{ fontWeight: 700, mb: 1, color: '#1a1a1a', fontFamily: '"Playfair Display", serif' }}>
                     {step.title}
                   </Typography>
                   <Typography variant="body2" sx={{ color: '#6B5B4F' }}>{step.description}</Typography>
@@ -107,25 +107,25 @@ const Marketplace = () => {
       </Box>
 
       <Container sx={{ py: 8 }}>
-        <Paper elevation={0} sx={{ p: 6, textAlign: 'center', border: '1px solid #E8DDD0', borderRadius: 2, backgroundColor: '#FAF6F1' }}>
-          <Typography variant="h4" sx={{ fontWeight: 700, mb: 2, color: '#2C1810', fontFamily: '"Playfair Display", serif' }}>
+        <Paper elevation={0} sx={{ p: 6, textAlign: 'center', border: '1px solid #e0e0e0', borderRadius: 2, backgroundColor: '#f5f5f5' }}>
+          <Typography variant="h4" sx={{ fontWeight: 700, mb: 2, color: '#1a1a1a', fontFamily: '"Playfair Display", serif' }}>
             Ready to Join?
           </Typography>
-          <Typography variant="body1" sx={{ color: '#8B7355', mb: 4, maxWidth: 500, mx: 'auto' }}>
-            Whether you're a vendor looking to sell or a buyer looking for quality fabrics, LSM Marketplace is the place.
+          <Typography variant="body1" sx={{ color: '#1a1a1a', mb: 4, maxWidth: 500, mx: 'auto' }}>
+            Whether you're a brand looking to sell or a shopper looking for quality fashion, JAY Marketplace is the place.
           </Typography>
           <Stack direction={{ xs: 'column', sm: 'row' }} spacing={2} justifyContent="center">
             <Button
               variant="contained" size="large"
               onClick={() => navigate('/register')}
-              sx={{ backgroundColor: '#8B7355', '&:hover': { backgroundColor: '#5C4A32' }, fontWeight: 700, px: 4 }}
+              sx={{ backgroundColor: '#1a1a1a', '&:hover': { backgroundColor: '#000000' }, fontWeight: 700, px: 4 }}
             >
               Join as Vendor
             </Button>
             <Button
               variant="outlined" size="large"
               onClick={() => navigate('/shop')}
-              sx={{ borderColor: '#C4A882', color: '#6B5B4F', fontWeight: 600, px: 4 }}
+              sx={{ borderColor: '#ccc', color: '#6B5B4F', fontWeight: 600, px: 4 }}
             >
               Browse Products
             </Button>

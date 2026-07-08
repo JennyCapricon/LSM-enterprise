@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { Link as RouterLink, useNavigate } from 'react-router-dom';
+import React, { useState, useRef } from 'react';
+import { Link as RouterLink, useNavigate, useLocation } from 'react-router-dom';
 import {
   AppBar,
   Toolbar,
@@ -12,44 +12,66 @@ import {
   List,
   ListItem,
   ListItemText,
+  ListItemButton,
   Badge,
   useMediaQuery,
   useTheme,
   InputBase,
   Slide,
   Paper,
+  Divider,
+  Popper,
+  Grow,
+  ClickAwayListener,
+  MenuList,
+  MenuItem,
 } from '@mui/material';
 import MenuIcon from '@mui/icons-material/Menu';
+import MoreHorizIcon from '@mui/icons-material/MoreHoriz';
 import FavoriteBorderIcon from '@mui/icons-material/FavoriteBorder';
 import ShoppingCartIcon from '@mui/icons-material/ShoppingCart';
 import SearchIcon from '@mui/icons-material/Search';
 import CloseIcon from '@mui/icons-material/Close';
 import PersonIcon from '@mui/icons-material/Person';
-import { useCart } from '../contexts/CartContext';
+import Logo from './Logo';
 import { useWishlist } from '../contexts/WishlistContext';
 import { useAuth } from '../contexts/AuthContext';
 import { useSearch } from '../contexts/SearchContext';
+import { useCart } from '../contexts/CartContext';
 import { products } from '../data/products';
 
 const Header = () => {
   const navigate = useNavigate();
+  const location = useLocation();
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('md'));
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [searchResults, setSearchResults] = useState([]);
+  const [menuOpen, setMenuOpen] = useState(false);
+  const menuAnchorRef = useRef(null);
   const { itemCount } = useCart();
   const { count: wishlistCount } = useWishlist();
   const { user, isAuthenticated, logout } = useAuth();
   const { searchQuery, setSearchQuery, searchOpen, openSearch, closeSearch } = useSearch();
 
-  const navItems = [
+  const visibleLinks = [
     { label: 'Home', path: '/' },
-    { label: 'Shop', path: '/shop' },
-    { label: 'Deals', path: '/deals' },
+  ];
+
+  const moreLinks = [
+    { label: 'Shop All', path: '/shop' },
+    { label: "Women's Gallery", path: '/womens-gallery' },
+    { label: "Women's Fashion", path: '/womens-fashion' },
+    { label: "Men's Fashion", path: '/mens-fashion' },
+    { label: 'Children Fashion', path: '/children-fashion' },
     { label: 'Measurement Guide', path: '/measurement-guide' },
     { label: 'About', path: '/about' },
     { label: 'Blog', path: '/blog' },
+    { label: 'Help Center', path: '/help' },
+    { label: 'Shipping Info', path: '/shipping' },
     { label: 'Contact', path: '/contact' },
+    { label: 'Marketplace', path: '/marketplace' },
+    { label: 'Vendors', path: '/vendors' },
   ];
 
   const handleSearch = (query) => {
@@ -70,58 +92,49 @@ const Header = () => {
     navigate(`/shop/${slug}`);
   };
 
+  const handleToggleMenu = () => setMenuOpen((prev) => !prev);
+  const handleCloseMenu = () => setMenuOpen(false);
+
   const drawer = (
-    <Box sx={{ width: 280, backgroundColor: '#FAF6F1', height: '100%' }}>
-      <Box sx={{ p: 2, borderBottom: '1px solid #E8DDD0' }}>
-        <Typography variant="h6" sx={{ fontFamily: '"Playfair Display", serif', fontWeight: 700, color: '#2C1810' }}>
-          LSM Enterprise
-        </Typography>
+    <Box sx={{ width: 280, height: '100%', backgroundColor: '#fff' }}>
+      <Box sx={{ p: 2, borderBottom: '1px solid', borderColor: 'divider' }}>
+        <Logo />
       </Box>
-      <List>
-        {navItems.map((item) => (
-          <ListItem key={item.label}>
-            <ListItemText>
-              <Link
-                component={RouterLink}
-                to={item.path}
-                underline="none"
-                color="inherit"
-                onClick={() => setDrawerOpen(false)}
-                sx={{ color: '#2C1810', fontWeight: 500 }}
-              >
-                {item.label}
-              </Link>
-            </ListItemText>
+      <List sx={{ pt: 1 }}>
+        {moreLinks.map((item) => (
+          <ListItem key={item.label} disablePadding>
+            <ListItemButton
+              component={RouterLink}
+              to={item.path}
+              selected={location.pathname === item.path}
+              onClick={() => setDrawerOpen(false)}
+              sx={{ '&.Mui-selected': { backgroundColor: 'rgba(255,107,107,0.08)', borderRight: '3px solid #ff6b6b' } }}
+            >
+              <ListItemText primary={item.label} primaryTypographyProps={{ fontWeight: 500, fontSize: '0.95rem' }} />
+            </ListItemButton>
           </ListItem>
         ))}
-        <ListItem>
-          <ListItemText>
-            <Link component={RouterLink} to="/marketplace" underline="none" onClick={() => setDrawerOpen(false)} sx={{ color: '#2C1810', fontWeight: 500 }}>Marketplace</Link>
-          </ListItemText>
-        </ListItem>
-        <ListItem>
-          <ListItemText>
-            <Link component={RouterLink} to="/vendors" underline="none" onClick={() => setDrawerOpen(false)} sx={{ color: '#2C1810', fontWeight: 500 }}>Vendors</Link>
-          </ListItemText>
-        </ListItem>
+      </List>
+      <Divider sx={{ mx: 2 }} />
+      <List>
         {isAuthenticated ? (
           <>
-            <ListItem>
-              <ListItemText>
-                <Link component={RouterLink} to="/account" underline="none" onClick={() => setDrawerOpen(false)} sx={{ color: '#2C1810', fontWeight: 500 }}>My Account</Link>
-              </ListItemText>
+            <ListItem disablePadding>
+              <ListItemButton component={RouterLink} to="/account" onClick={() => setDrawerOpen(false)}>
+                <ListItemText primary="My Account" />
+              </ListItemButton>
             </ListItem>
-            <ListItem>
-              <ListItemText>
-                <Link component={RouterLink} to="/" underline="none" onClick={() => { setDrawerOpen(false); logout(); }} sx={{ color: '#2C1810', fontWeight: 500 }}>Logout</Link>
-              </ListItemText>
+            <ListItem disablePadding>
+              <ListItemButton onClick={() => { setDrawerOpen(false); logout(); }}>
+                <ListItemText primary="Logout" />
+              </ListItemButton>
             </ListItem>
           </>
         ) : (
-          <ListItem>
-            <ListItemText>
-              <Link component={RouterLink} to="/login" underline="none" onClick={() => setDrawerOpen(false)} sx={{ color: '#2C1810', fontWeight: 500 }}>Sign In</Link>
-            </ListItemText>
+          <ListItem disablePadding>
+            <ListItemButton component={RouterLink} to="/login" onClick={() => setDrawerOpen(false)}>
+              <ListItemText primary="Sign In" />
+            </ListItemButton>
           </ListItem>
         )}
       </List>
@@ -130,87 +143,72 @@ const Header = () => {
 
   return (
     <>
-      <AppBar position="sticky" elevation={2} sx={{ backgroundColor: '#FAF6F1', color: '#2C1810' }}>
-        <Toolbar sx={{ display: 'flex', justifyContent: 'space-between', py: 0.5 }}>
-          <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+      <AppBar position="sticky" elevation={0} sx={{ backgroundColor: '#fff', color: '#1a1a1a', borderBottom: '1px solid', borderColor: 'divider' }}>
+        <Toolbar sx={{ display: 'flex', justifyContent: 'space-between', minHeight: { xs: 56, md: 64 }, px: { xs: 2, md: 4 } }}>
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
             {isMobile && (
-              <IconButton color="inherit" onClick={() => setDrawerOpen(true)} sx={{ mr: 1 }}>
+              <IconButton color="inherit" onClick={() => setDrawerOpen(true)} sx={{ mr: 0.5 }}>
                 <MenuIcon />
               </IconButton>
             )}
-            <Link component={RouterLink} to="/" sx={{ display: 'flex', alignItems: 'center', gap: 1, textDecoration: 'none', color: 'inherit' }}>
-              <Box
-                component="img"
-                src="/images/Drip.jpg"
-                alt="LSM Enterprise"
-                sx={{ width: 42, height: 42, borderRadius: 1, objectFit: 'cover' }}
-              />
-              <Typography
-                variant="h6"
-                sx={{
-                  fontFamily: '"Playfair Display", serif',
-                  fontWeight: 700,
-                  fontSize: { xs: '1rem', md: '1.3rem' },
-                  color: '#2C1810',
-                }}
-              >
-                LSM Enterprise
-              </Typography>
+            <Link component={RouterLink} to="/" sx={{ display: 'flex', alignItems: 'center', textDecoration: 'none', color: 'inherit' }}>
+              <Logo />
             </Link>
           </Box>
 
           {!isMobile && (
-            <Box sx={{ display: 'flex', gap: 3, flex: 1, justifyContent: 'center' }}>
-              {navItems.map((item) => (
-                <Link
-                  key={item.label}
-                  component={RouterLink}
-                  to={item.path}
-                  underline="none"
-                  sx={{
-                    fontWeight: 500,
-                    color: '#6B5B4F',
-                    fontSize: '0.95rem',
-                    transition: 'color 0.2s',
-                    '&:hover': { color: '#8B7355' },
-                  }}
-                >
+            <Box sx={{ display: 'flex', gap: 0.5, alignItems: 'center' }}>
+              {visibleLinks.map((item) => (
+                <Link key={item.label} component={RouterLink} to={item.path} underline="none"
+                  sx={{ px: 1.5, py: 1, fontWeight: 500, fontSize: '0.85rem', color: location.pathname === item.path ? '#1a1a1a' : '#666', '&:hover': { color: '#1a1a1a' },
+                    borderBottom: location.pathname === item.path ? '2px solid #ff6b6b' : '2px solid transparent' }}>
                   {item.label}
                 </Link>
               ))}
+
+              {/* THREE-DOT MORE MENU */}
+              <IconButton ref={menuAnchorRef} onClick={handleToggleMenu} size="small" sx={{ ml: 0.5, color: '#666', '&:hover': { color: '#1a1a1a' } }}>
+                <MoreHorizIcon />
+              </IconButton>
+              <Popper open={menuOpen} anchorEl={menuAnchorRef.current} transition disablePortal placement="bottom-start" sx={{ zIndex: 1300 }}>
+                {({ TransitionProps }) => (
+                  <Grow {...TransitionProps}>
+                    <Paper elevation={8} sx={{ mt: 1, borderRadius: 1, minWidth: 200, overflow: 'hidden' }}>
+                      <ClickAwayListener onClickAway={handleCloseMenu}>
+                        <MenuList>
+                          {moreLinks.map((item) => (
+                            <MenuItem key={item.label} onClick={() => { navigate(item.path); handleCloseMenu(); }}
+                              selected={location.pathname === item.path}
+                              sx={{ fontSize: '0.85rem', fontWeight: 500, py: 1.2, '&.Mui-selected': { backgroundColor: 'rgba(255,107,107,0.08)' } }}>
+                              {item.label}
+                            </MenuItem>
+                          ))}
+                        </MenuList>
+                      </ClickAwayListener>
+                    </Paper>
+                  </Grow>
+                )}
+              </Popper>
             </Box>
           )}
 
           <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
-            <IconButton color="inherit" onClick={openSearch} size="large">
-              <SearchIcon />
-            </IconButton>
-            <IconButton color="inherit" onClick={() => navigate('/wishlist')} size="large">
-              <Badge badgeContent={wishlistCount} color="secondary" sx={{ '& .MuiBadge-badge': { backgroundColor: '#D4A574', color: '#2C1810' } }}>
-                <FavoriteBorderIcon />
+            <IconButton color="inherit" onClick={openSearch} size="small"><SearchIcon /></IconButton>
+            <IconButton color="inherit" onClick={() => navigate('/wishlist')} size="small">
+              <Badge badgeContent={wishlistCount} color="secondary" sx={{ '& .MuiBadge-badge': { backgroundColor: '#ff6b6b', color: '#fff', fontSize: '0.65rem', minWidth: 16, height: 16 } }}>
+                <FavoriteBorderIcon fontSize="small" />
               </Badge>
             </IconButton>
-            <IconButton color="inherit" onClick={() => navigate('/cart')} size="large">
-              <Badge badgeContent={itemCount} color="secondary" sx={{ '& .MuiBadge-badge': { backgroundColor: '#D4A574', color: '#2C1810' } }}>
-                <ShoppingCartIcon />
+            <IconButton color="inherit" onClick={() => navigate('/cart')} size="small">
+              <Badge badgeContent={itemCount} color="secondary" sx={{ '& .MuiBadge-badge': { backgroundColor: '#ff6b6b', color: '#fff', fontSize: '0.65rem', minWidth: 16, height: 16 } }}>
+                <ShoppingCartIcon fontSize="small" />
               </Badge>
             </IconButton>
             {isAuthenticated ? (
-              <IconButton color="inherit" onClick={() => navigate('/account')} size="large">
-                <PersonIcon />
-              </IconButton>
+              <IconButton color="inherit" onClick={() => navigate('/account')} size="small"><PersonIcon fontSize="small" /></IconButton>
             ) : (
-              <Button
-                variant="contained"
-                size={isMobile ? 'small' : 'medium'}
-                onClick={() => navigate('/login')}
-                sx={{
-                  backgroundColor: '#8B7355',
-                  color: '#FAF6F1',
-                  ml: 1,
-                  '&:hover': { backgroundColor: '#5C4A32' },
-                }}
-              >
+              <Button variant="outlined" size="small" onClick={() => navigate('/login')}
+                sx={{ ml: 1, borderColor: '#1a1a1a', color: '#1a1a1a', '&:hover': { backgroundColor: '#1a1a1a', color: '#fff' }, fontSize: '0.8rem', py: 0.5, px: 2 }}>
                 Sign In
               </Button>
             )}
@@ -218,82 +216,38 @@ const Header = () => {
         </Toolbar>
       </AppBar>
 
-      {/* Search Overlay */}
-      <Slide direction="down" in={searchOpen} mountOnEnter unmountOnExit>
-        <Paper
-          sx={{
-            position: 'fixed',
-            top: 64,
-            left: 0,
-            right: 0,
-            zIndex: 1200,
-            borderRadius: 0,
-            boxShadow: '0 4px 20px rgba(0,0,0,0.1)',
-            backgroundColor: '#FAF6F1',
-          }}
-        >
+      {/* SEARCH OVERLAY */}
+      <Slide direction="top" in={searchOpen} mountOnEnter unmountOnExit>
+        <Paper sx={{ position: 'fixed', top: { xs: 56, md: 64 }, left: 0, right: 0, zIndex: 1200, borderRadius: 0, boxShadow: '0 4px 20px rgba(0,0,0,0.1)' }}>
           <Box sx={{ p: 2, maxWidth: 600, mx: 'auto' }}>
             <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-              <SearchIcon sx={{ color: '#8B7355' }} />
-              <InputBase
-                fullWidth
-                autoFocus
-                placeholder="Search products, categories..."
-                value={searchQuery}
-                onChange={(e) => handleSearch(e.target.value)}
-                sx={{ fontSize: '1.1rem' }}
-              />
-              <IconButton size="small" onClick={closeSearch}>
-                <CloseIcon />
-              </IconButton>
+              <SearchIcon sx={{ color: '#999' }} />
+              <InputBase fullWidth autoFocus placeholder="Search fabrics..." value={searchQuery}
+                onChange={(e) => handleSearch(e.target.value)} sx={{ fontSize: '1rem' }} />
+              <IconButton size="small" onClick={closeSearch}><CloseIcon /></IconButton>
             </Box>
             {searchResults.length > 0 && (
-              <Box sx={{ mt: 1, borderTop: '1px solid #E8DDD0' }}>
+              <Box sx={{ mt: 1, borderTop: '1px solid', borderColor: 'divider' }}>
                 {searchResults.map(product => (
-                  <Box
-                    key={product.id}
-                    onClick={() => handleSearchSelect(product.slug)}
-                    sx={{
-                      display: 'flex',
-                      alignItems: 'center',
-                      gap: 2,
-                      py: 1.5,
-                      px: 1,
-                      cursor: 'pointer',
-                      borderRadius: 1,
-                      '&:hover': { backgroundColor: 'rgba(139,115,85,0.08)' },
-                    }}
-                  >
-                    <Box
-                      component="img"
-                      src={product.images[0]}
-                      alt={product.name}
-                      sx={{ width: 50, height: 50, borderRadius: 1, objectFit: 'cover' }}
-                    />
+                  <Box key={product.id} onClick={() => handleSearchSelect(product.slug)}
+                    sx={{ display: 'flex', alignItems: 'center', gap: 2, py: 1.5, px: 1, cursor: 'pointer', borderRadius: 1, '&:hover': { backgroundColor: '#f5f5f5' } }}>
+                    <Box component="img" src={product.images[0]} alt={product.name} sx={{ width: 50, height: 50, objectFit: 'cover' }} />
                     <Box>
-                      <Typography variant="body2" sx={{ fontWeight: 600, color: '#2C1810' }}>
-                        {product.name}
-                      </Typography>
-                      <Typography variant="caption" sx={{ color: '#8B7355' }}>
-                        ₦{product.price.toLocaleString()}
-                      </Typography>
+                      <Typography variant="body2" sx={{ fontWeight: 600, color: '#1a1a1a' }}>{product.name}</Typography>
+                      <Typography variant="caption" sx={{ color: '#999' }}>₦{product.price.toFixed(2)} / yd</Typography>
                     </Box>
                   </Box>
                 ))}
               </Box>
             )}
             {searchQuery && searchResults.length === 0 && (
-              <Typography variant="body2" sx={{ color: '#8B7355', py: 2, textAlign: 'center' }}>
-                No products found for "{searchQuery}"
-              </Typography>
+              <Typography variant="body2" sx={{ color: '#999', py: 2, textAlign: 'center' }}>No fabrics found for &quot;{searchQuery}&quot;</Typography>
             )}
           </Box>
         </Paper>
       </Slide>
 
-      <Drawer anchor="left" open={drawerOpen} onClose={() => setDrawerOpen(false)}>
-        {drawer}
-      </Drawer>
+      <Drawer anchor="left" open={drawerOpen} onClose={() => setDrawerOpen(false)}>{drawer}</Drawer>
     </>
   );
 };
