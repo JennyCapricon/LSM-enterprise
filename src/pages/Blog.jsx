@@ -12,6 +12,7 @@ import { blogPosts } from '../data/products';
 
 const Blog = () => {
   const [selectedCategory, setSelectedCategory] = useState('all');
+  const [expandedPost, setExpandedPost] = useState(null);
 
   const categories = [
     { id: 'all', name: 'All Posts' },
@@ -31,7 +32,7 @@ const Blog = () => {
     <Box sx={{ width: '100%' }}>
       <SEO title="Blog" description="Fashion inspiration, style tips, and trends from JAY." />
       <Box sx={{ background: 'linear-gradient(135deg, #000000 0%, #1a1a1a 100%)', color: '#f5f5f5', py: 8, textAlign: 'center' }}>
-        <Container>
+        <Container maxWidth="xl">
           <Typography variant="h3" sx={{ fontWeight: 800, mb: 2, fontFamily: '"Playfair Display", serif' }}>
             JAY Blog
           </Typography>
@@ -39,7 +40,7 @@ const Blog = () => {
         </Container>
       </Box>
 
-      <Container sx={{ py: 4 }}>
+      <Container maxWidth="xl" sx={{ py: 4 }}>
         <Stack direction="row" spacing={1} sx={{ justifyContent: 'center', flexWrap: 'wrap', gap: 1 }}>
           {categories.map(category => (
             <Chip
@@ -60,59 +61,210 @@ const Blog = () => {
       </Container>
 
       {/* Featured Post */}
-      {selectedCategory === 'all' && (
-        <Container sx={{ py: 4, mb: 4 }}>
+      {selectedCategory === 'all' && featured && (
+        <Container maxWidth="xl" sx={{ py: 4, mb: 4 }}>
           <Paper elevation={0} sx={{ overflow: 'hidden', border: '1px solid #e0e0e0', borderRadius: 2 }}>
             <Grid container>
               <Grid item xs={12} md={6}>
-                <Box component="img" src="/images/p1.jpg" alt="Featured" sx={{ width: '100%', height: 320, objectFit: 'cover' }} />
+                <Box component="img" src={featured.image} alt={featured.title} sx={{ width: '100%', height: { xs: 240, md: 400 }, objectFit: 'cover' }} />
               </Grid>
               <Grid item xs={12} md={6} sx={{ p: 4, display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
                 <Chip label="Featured" size="small" sx={{ backgroundColor: '#ff6b6b', color: '#1a1a1a', fontWeight: 700, width: 'fit-content', mb: 2 }} />
                 <Typography variant="h5" sx={{ fontWeight: 700, mb: 2, color: '#1a1a1a', fontFamily: '"Playfair Display", serif' }}>
-                  The Ultimate Guide to African Fabric Fashion
+                  {featured.title}
                 </Typography>
                 <Typography variant="body2" sx={{ mb: 3, color: '#6B5B4F', lineHeight: 1.6 }}>
-                  Explore the rich heritage of African textiles and discover how to incorporate them into modern fashion.
+                  {featured.excerpt}
                 </Typography>
                 <Stack direction="row" spacing={2} sx={{ mb: 3, flexWrap: 'wrap' }}>
                   <Stack direction="row" spacing={0.5} alignItems="center">
                     <PersonIcon sx={{ fontSize: 18, color: '#1a1a1a' }} />
-                    <Typography variant="caption" color="textSecondary">Sarah Johnson</Typography>
+                    <Typography variant="caption" color="textSecondary">{featured.author}</Typography>
                   </Stack>
                   <Stack direction="row" spacing={0.5} alignItems="center">
                     <CalendarTodayIcon sx={{ fontSize: 18, color: '#1a1a1a' }} />
-                    <Typography variant="caption" color="textSecondary">March 20, 2024</Typography>
+                    <Typography variant="caption" color="textSecondary">{featured.date}</Typography>
                   </Stack>
                   <Stack direction="row" spacing={0.5} alignItems="center">
                     <AccessTimeIcon sx={{ fontSize: 18, color: '#1a1a1a' }} />
-                    <Typography variant="caption" color="textSecondary">10 min read</Typography>
+                    <Typography variant="caption" color="textSecondary">{featured.readTime}</Typography>
                   </Stack>
                 </Stack>
                 <Button
                   variant="contained" endIcon={<ArrowForwardIcon />}
+                  onClick={() => setExpandedPost(expandedPost === featured.id ? null : featured.id)}
                   sx={{ width: 'fit-content', backgroundColor: '#1a1a1a', '&:hover': { backgroundColor: '#000000' }, fontWeight: 600 }}
                 >
-                  Read More
+                  {expandedPost === featured.id ? 'Show Less' : 'Read More'}
                 </Button>
+                {expandedPost === featured.id && (
+                  <Typography variant="body2" sx={{ mt: 2, color: '#1a1a1a', lineHeight: 1.8 }}>
+                    {featured.content}
+                  </Typography>
+                )}
               </Grid>
             </Grid>
           </Paper>
         </Container>
       )}
 
-      <Container sx={{ py: 4 }}>
+      {/* Second Post (Hero Style) */}
+      {selectedCategory === 'all' && filteredPosts[1] && (
+        <Container maxWidth="xl" sx={{ py: 4, mb: 4 }}>
+          <Paper elevation={0} sx={{ overflow: 'hidden', border: '1px solid #e0e0e0', borderRadius: 2 }}>
+            <Box sx={{ display: 'flex', flexDirection: { xs: 'column', md: 'row' } }}>
+              <Box sx={{ width: { xs: '100%', md: '50%' }, flexShrink: 0 }}>
+                <Box component="img" src={filteredPosts[1].image} alt={filteredPosts[1].title} sx={{ width: '100%', height: { xs: 240, md: 400 }, objectFit: 'cover', display: 'block' }} />
+              </Box>
+              <Box sx={{ width: { xs: '100%', md: '50%' }, p: 4, display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
+                <Chip label="Trends" size="small" sx={{ backgroundColor: '#ff6b6b', color: '#1a1a1a', fontWeight: 700, width: 'fit-content', mb: 2 }} />
+                <Typography variant="h5" sx={{ fontWeight: 700, mb: 2, color: '#1a1a1a', fontFamily: '"Playfair Display", serif' }}>
+                  {filteredPosts[1].title}
+                </Typography>
+                <Typography variant="body2" sx={{ mb: 3, color: '#6B5B4F', lineHeight: 1.6 }}>
+                  {filteredPosts[1].excerpt}
+                </Typography>
+                <Stack direction="row" spacing={2} sx={{ mb: 3, flexWrap: 'wrap' }}>
+                  <Stack direction="row" spacing={0.5} alignItems="center">
+                    <PersonIcon sx={{ fontSize: 18, color: '#1a1a1a' }} />
+                    <Typography variant="caption" color="textSecondary">{filteredPosts[1].author}</Typography>
+                  </Stack>
+                  <Stack direction="row" spacing={0.5} alignItems="center">
+                    <CalendarTodayIcon sx={{ fontSize: 18, color: '#1a1a1a' }} />
+                    <Typography variant="caption" color="textSecondary">{filteredPosts[1].date}</Typography>
+                  </Stack>
+                  <Stack direction="row" spacing={0.5} alignItems="center">
+                    <AccessTimeIcon sx={{ fontSize: 18, color: '#1a1a1a' }} />
+                    <Typography variant="caption" color="textSecondary">{filteredPosts[1].readTime}</Typography>
+                  </Stack>
+                </Stack>
+                <Button
+                  variant="contained" endIcon={<ArrowForwardIcon />}
+                  onClick={() => setExpandedPost(expandedPost === filteredPosts[1].id ? null : filteredPosts[1].id)}
+                  sx={{ width: 'fit-content', backgroundColor: '#1a1a1a', '&:hover': { backgroundColor: '#000000' }, fontWeight: 600 }}
+                >
+                  {expandedPost === filteredPosts[1].id ? 'Show Less' : 'Read More'}
+                </Button>
+                  {expandedPost === filteredPosts[1].id && (
+                    <Typography variant="body2" sx={{ mt: 2, color: '#1a1a1a', lineHeight: 1.8 }}>
+                      {filteredPosts[1].content}
+                    </Typography>
+                  )}
+                </Box>
+              </Box>
+            </Paper>
+          </Container>
+        )}
+
+      {/* Third Post (Hero Style) */}
+      {selectedCategory === 'all' && filteredPosts[2] && (
+        <Container maxWidth="xl" sx={{ py: 4, mb: 4 }}>
+          <Paper elevation={0} sx={{ overflow: 'hidden', border: '1px solid #e0e0e0', borderRadius: 2 }}>
+            <Box sx={{ display: 'flex', flexDirection: { xs: 'column', md: 'row' } }}>
+              <Box sx={{ width: { xs: '100%', md: '50%' }, flexShrink: 0 }}>
+                <Box component="img" src={filteredPosts[2].image} alt={filteredPosts[2].title} sx={{ width: '100%', height: { xs: 240, md: 400 }, objectFit: 'cover', display: 'block' }} />
+              </Box>
+              <Box sx={{ width: { xs: '100%', md: '50%' }, p: 4, display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
+                <Chip label="Style Guide" size="small" sx={{ backgroundColor: '#ff6b6b', color: '#1a1a1a', fontWeight: 700, width: 'fit-content', mb: 2 }} />
+                <Typography variant="h5" sx={{ fontWeight: 700, mb: 2, color: '#1a1a1a', fontFamily: '"Playfair Display", serif' }}>
+                  {filteredPosts[2].title}
+                </Typography>
+                <Typography variant="body2" sx={{ mb: 3, color: '#6B5B4F', lineHeight: 1.6 }}>
+                  {filteredPosts[2].excerpt}
+                </Typography>
+                <Stack direction="row" spacing={2} sx={{ mb: 3, flexWrap: 'wrap' }}>
+                  <Stack direction="row" spacing={0.5} alignItems="center">
+                    <PersonIcon sx={{ fontSize: 18, color: '#1a1a1a' }} />
+                    <Typography variant="caption" color="textSecondary">{filteredPosts[2].author}</Typography>
+                  </Stack>
+                  <Stack direction="row" spacing={0.5} alignItems="center">
+                    <CalendarTodayIcon sx={{ fontSize: 18, color: '#1a1a1a' }} />
+                    <Typography variant="caption" color="textSecondary">{filteredPosts[2].date}</Typography>
+                  </Stack>
+                  <Stack direction="row" spacing={0.5} alignItems="center">
+                    <AccessTimeIcon sx={{ fontSize: 18, color: '#1a1a1a' }} />
+                    <Typography variant="caption" color="textSecondary">{filteredPosts[2].readTime}</Typography>
+                  </Stack>
+                </Stack>
+                <Button
+                  variant="contained" endIcon={<ArrowForwardIcon />}
+                  onClick={() => setExpandedPost(expandedPost === filteredPosts[2].id ? null : filteredPosts[2].id)}
+                  sx={{ width: 'fit-content', backgroundColor: '#1a1a1a', '&:hover': { backgroundColor: '#000000' }, fontWeight: 600 }}
+                >
+                  {expandedPost === filteredPosts[2].id ? 'Show Less' : 'Read More'}
+                </Button>
+                  {expandedPost === filteredPosts[2].id && (
+                    <Typography variant="body2" sx={{ mt: 2, color: '#1a1a1a', lineHeight: 1.8 }}>
+                      {filteredPosts[2].content}
+                    </Typography>
+                  )}
+                </Box>
+              </Box>
+            </Paper>
+          </Container>
+        )}
+
+      {/* Fourth Post (Hero Style) */}
+      {selectedCategory === 'all' && filteredPosts[3] && (
+        <Container maxWidth="xl" sx={{ py: 4, mb: 4 }}>
+          <Paper elevation={0} sx={{ overflow: 'hidden', border: '1px solid #e0e0e0', borderRadius: 2 }}>
+            <Box sx={{ display: 'flex', flexDirection: { xs: 'column', md: 'row' } }}>
+              <Box sx={{ width: { xs: '100%', md: '50%' }, flexShrink: 0 }}>
+                <Box component="img" src={filteredPosts[3].image} alt={filteredPosts[3].title} sx={{ width: '100%', height: { xs: 240, md: 400 }, objectFit: 'cover', display: 'block' }} />
+              </Box>
+              <Box sx={{ width: { xs: '100%', md: '50%' }, p: 4, display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
+                <Chip label="Sustainability" size="small" sx={{ backgroundColor: '#ff6b6b', color: '#1a1a1a', fontWeight: 700, width: 'fit-content', mb: 2 }} />
+                <Typography variant="h5" sx={{ fontWeight: 700, mb: 2, color: '#1a1a1a', fontFamily: '"Playfair Display", serif' }}>
+                  {filteredPosts[3].title}
+                </Typography>
+                <Typography variant="body2" sx={{ mb: 3, color: '#6B5B4F', lineHeight: 1.6 }}>
+                  {filteredPosts[3].excerpt}
+                </Typography>
+                <Stack direction="row" spacing={2} sx={{ mb: 3, flexWrap: 'wrap' }}>
+                  <Stack direction="row" spacing={0.5} alignItems="center">
+                    <PersonIcon sx={{ fontSize: 18, color: '#1a1a1a' }} />
+                    <Typography variant="caption" color="textSecondary">{filteredPosts[3].author}</Typography>
+                  </Stack>
+                  <Stack direction="row" spacing={0.5} alignItems="center">
+                    <CalendarTodayIcon sx={{ fontSize: 18, color: '#1a1a1a' }} />
+                    <Typography variant="caption" color="textSecondary">{filteredPosts[3].date}</Typography>
+                  </Stack>
+                  <Stack direction="row" spacing={0.5} alignItems="center">
+                    <AccessTimeIcon sx={{ fontSize: 18, color: '#1a1a1a' }} />
+                    <Typography variant="caption" color="textSecondary">{filteredPosts[3].readTime}</Typography>
+                  </Stack>
+                </Stack>
+                <Button
+                  variant="contained" endIcon={<ArrowForwardIcon />}
+                  onClick={() => setExpandedPost(expandedPost === filteredPosts[3].id ? null : filteredPosts[3].id)}
+                  sx={{ width: 'fit-content', backgroundColor: '#1a1a1a', '&:hover': { backgroundColor: '#000000' }, fontWeight: 600 }}
+                >
+                  {expandedPost === filteredPosts[3].id ? 'Show Less' : 'Read More'}
+                </Button>
+                  {expandedPost === filteredPosts[3].id && (
+                    <Typography variant="body2" sx={{ mt: 2, color: '#1a1a1a', lineHeight: 1.8 }}>
+                      {filteredPosts[3].content}
+                    </Typography>
+                  )}
+                </Box>
+              </Box>
+            </Paper>
+          </Container>
+        )}
+
+      <Container maxWidth="xl" sx={{ py: 4 }}>
         <Grid container spacing={3}>
-          {filteredPosts.map(post => (
-            <Grid item xs={12} sm={6} md={6} lg={4} key={post.id}>
+          {filteredPosts.filter((_, i) => selectedCategory !== 'all' || i > 3).map(post => (
+            <Grid item xs={12} key={post.id}>
               <Card
+                onClick={() => setExpandedPost(expandedPost === post.id ? null : post.id)}
                 sx={{
                   height: '100%', display: 'flex', flexDirection: 'column', cursor: 'pointer',
                   border: '1px solid #e0e0e0', boxShadow: 'none', transition: 'all 0.3s',
                   '&:hover': { transform: 'translateY(-8px)', boxShadow: '0 12px 40px rgba(44,24,16,0.12)' },
                 }}
               >
-                <CardMedia component="img" height="200" image={post.image} alt={post.title} sx={{ objectFit: 'cover' }} />
+                <CardMedia component="img" height={{ xs: 180, md: 240 }} image={post.image} alt={post.title} sx={{ width: '100%', objectFit: 'cover' }} loading="lazy" />
                 <CardContent sx={{ flexGrow: 1 }}>
                   <Chip
                     label={categories.find(c => c.id === post.category)?.name}
@@ -125,6 +277,11 @@ const Blog = () => {
                   <Typography variant="body2" sx={{ color: '#6B5B4F', mb: 2, lineHeight: 1.6 }}>
                     {post.excerpt}
                   </Typography>
+                  {expandedPost === post.id && (
+                    <Typography variant="body2" sx={{ mb: 2, color: '#1a1a1a', lineHeight: 1.8 }}>
+                      {post.content}
+                    </Typography>
+                  )}
                   <Stack direction="row" spacing={1} sx={{ color: '#1a1a1a', fontSize: '0.8rem' }}>
                     <Typography variant="caption">By {post.author}</Typography>
                     <Typography variant="caption">•</Typography>
@@ -133,7 +290,7 @@ const Blog = () => {
                 </CardContent>
                 <CardActions sx={{ px: 2, pb: 2 }}>
                   <Button color="primary" endIcon={<ArrowForwardIcon />} sx={{ color: '#1a1a1a', fontWeight: 600 }}>
-                    Read More
+                    {expandedPost === post.id ? 'Show Less' : 'Read More'}
                   </Button>
                 </CardActions>
               </Card>
@@ -142,7 +299,7 @@ const Blog = () => {
         </Grid>
       </Container>
 
-      <Container sx={{ py: 8 }}>
+      <Container maxWidth="xl" sx={{ py: { xs: 8, md: 12 } }}>
         <Paper elevation={0} sx={{ p: 6, textAlign: 'center', border: '1px solid #e0e0e0', borderRadius: 2, backgroundColor: '#f5f5f5' }}>
           <Typography variant="h5" sx={{ fontWeight: 700, mb: 2, color: '#1a1a1a', fontFamily: '"Playfair Display", serif' }}>
             Subscribe to Our Newsletter
@@ -150,7 +307,7 @@ const Blog = () => {
           <Typography variant="body1" sx={{ mb: 3, color: '#1a1a1a' }}>
             Get the latest fashion tips and exclusive offers delivered to your inbox
           </Typography>
-          <Stack direction={{ xs: 'column', sm: 'row' }} spacing={2} sx={{ maxWidth: 500, mx: 'auto' }}>
+          <Stack direction={{ xs: 'column', sm: 'row' }} spacing={2} sx={{ maxWidth: { xs: '100%', md: 560 }, mx: 'auto' }}>
             <TextField
               placeholder="Enter your email address"
               variant="outlined" size="small" fullWidth

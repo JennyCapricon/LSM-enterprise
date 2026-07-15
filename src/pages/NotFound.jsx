@@ -9,7 +9,7 @@ const NotFound = () => {
   const navigate = useNavigate();
 
   return (
-    <Container sx={{ py: 12, textAlign: 'center' }}>
+    <Container maxWidth="xl" sx={{ py: 12, textAlign: 'center' }}>
       <SEO title="Page Not Found" />
       <Typography
         variant="h1"
@@ -27,7 +27,7 @@ const NotFound = () => {
       <Typography variant="h4" sx={{ fontWeight: 700, color: '#1a1a1a', mb: 2, fontFamily: '"Playfair Display", serif' }}>
         Page Not Found
       </Typography>
-      <Typography variant="body1" sx={{ color: '#1a1a1a', mb: 6, maxWidth: 480, mx: 'auto' }}>
+      <Typography variant="body1" sx={{ color: '#1a1a1a', mb: 6, maxWidth: { xs: '100%', md: 560 }, mx: 'auto' }}>
         The page you are looking for might have been removed, had its name changed, or is temporarily unavailable.
       </Typography>
       <Box sx={{ display: 'flex', gap: 2, justifyContent: 'center', flexWrap: 'wrap' }}>

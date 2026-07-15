@@ -101,7 +101,7 @@ const ShippingInfo = () => {
   const recentOrders = orders.slice(0, 3);
 
   return (
-    <Container maxWidth="lg" sx={{ py: { xs: 4, md: 6 } }}>
+    <Container maxWidth="xl" sx={{ py: { xs: 4, md: 6 } }}>
       <SEO title="Live Shipping Tracker" />
       <Box sx={{ textAlign: 'center', mb: 5 }}>
         <LocalShippingIcon sx={{ fontSize: 48, color: '#ff6b6b', mb: 2 }} />

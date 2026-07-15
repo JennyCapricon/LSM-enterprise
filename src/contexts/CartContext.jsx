@@ -51,6 +51,10 @@ export const CartProvider = ({ children }) => {
   }, [items]);
 
   const addItem = (product) => {
+    if (product.inStock === false) {
+      notify(`${product.name} is currently unavailable`, 'error');
+      return;
+    }
     const existing = items.find(item => item.id === product.id);
     dispatch({ type: 'ADD_ITEM', payload: product });
     notify(existing ? `${product.name} quantity updated in cart` : `${product.name} added to cart`, 'success');

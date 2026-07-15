@@ -14,6 +14,12 @@ import MyLocationIcon from '@mui/icons-material/MyLocation';
 import WhatsAppIcon from '@mui/icons-material/WhatsApp';
 import LocalShippingIcon from '@mui/icons-material/LocalShipping';
 import DiscountIcon from '@mui/icons-material/Discount';
+import StorefrontIcon from '@mui/icons-material/Storefront';
+import PhoneIcon from '@mui/icons-material/Phone';
+import PaymentIcon from '@mui/icons-material/Payment';
+import { getVendorForProduct, formatWhatsAppNumber, generateVendorOrderMessage } from '../data/vendors';
+import { initializePayment, isPaystackConfigured } from '../services/paystackService';
+import { saveOrder } from '../services/supabaseService';
 
 const bankDetails = {
   bank: 'GTBank',
@@ -105,49 +111,110 @@ const Checkout = () => {
     return ref;
   };
 
-  const handlePlaceOrder = (e) => {
+  const placeOrderLocally = (ref) => {
+    const order = {
+      id: ref,
+      date: new Date().toISOString(),
+      status: 'processing',
+      items: [...items],
+      total: total,
+      shipping: shipping,
+      discount: discount,
+      address: `${form.address}, ${form.city}, ${form.state} ${form.zip}`,
+      customer: { name: form.fullName, email: form.email, phone: form.phone },
+    };
+    addOrder(order);
+    saveOrder({
+      userId: null,
+      customerName: form.fullName,
+      customerEmail: form.email,
+      customerPhone: form.phone,
+      shippingAddress: { address: form.address, city: form.city, state: form.state, zip: form.zip },
+      subtotal, shipping, discount, total,
+      paymentMethod, paymentStatus: paymentMethod === 'paystack' ? 'paid' : 'pending',
+      coupon: appliedCoupon,
+      deliveryNote: form.deliveryNote,
+      items,
+    });
+  };
+
+  const handlePlaceOrder = async (e) => {
     e.preventDefault();
+
+    if (paymentMethod === 'paystack') {
+      if (!isPaystackConfigured()) {
+        alert('Payment gateway not configured. Please use Bank Transfer or Pay on Delivery.');
+        return;
+      }
+      setProcessing(true);
+      const result = await initializePayment({
+        email: form.email,
+        amount: total,
+        metadata: { customer_name: form.fullName, customer_phone: form.phone },
+        onSuccess: (response) => {
+          const ref = response.reference;
+          setTxRef(ref);
+          placeOrderLocally(ref);
+          setProcessing(false);
+          setSuccess(true);
+          setPaid(true);
+        },
+        onCancel: () => {
+          setProcessing(false);
+        },
+      });
+      if (!result) {
+        setProcessing(false);
+      }
+      return;
+    }
+
     const ref = genTxRef();
     setTxRef(ref);
     setProcessing(true);
+    placeOrderLocally(ref);
+
     setTimeout(() => {
-      const order = {
-        id: ref,
-        date: new Date().toISOString(),
-        status: 'processing',
-        items: [...items],
-        total: total,
-        shipping: shipping,
-        address: `${form.address}, ${form.city}, ${form.state} ${form.zip}`,
-        customer: { name: form.fullName, email: form.email, phone: form.phone },
-      };
-      addOrder(order);
       setProcessing(false);
       setSuccess(true);
     }, 800);
   };
 
   const handlePaid = () => {
-    const whatsappNumber = import.meta.env.VITE_WHATSAPP_NUMBER || '2349027089929';
-    const itemList = items.map(i => `• ${i.name} x${i.quantity} = ₦${(i.price * i.quantity).toLocaleString()}`).join('\n');
-    const message = encodeURIComponent(
-      `🛒 *NEW ORDER - PAYMENT CONFIRMATION*\n\n` +
-      `━━━━━━━━━━━━━━━━━━\n` +
-      `*Customer:* ${form.fullName}\n` +
-      `*Phone:* ${form.phone}\n` +
-      `*Email:* ${form.email}\n` +
-      `*Transaction Ref:* ${txRef}\n\n` +
-      `━━━━ *ORDER ITEMS* ━━━━\n${itemList}\n\n` +
-      `*Subtotal:* ₦${subtotal.toLocaleString()}\n` +
-        `*Shipping:* ${shipping === 0 ? 'FREE' : `₦${shipping.toLocaleString()}`}\n` +
-      `*Total Paid:* ₦${total.toLocaleString()}\n\n` +
-      `━━━━ *DELIVERY ADDRESS* ━━━━\n` +
-      `${form.address}\n${form.city}, ${form.state} ${form.zip}\n\n` +
-      `*Delivery Note:* ${form.deliveryNote || 'N/A'}\n\n` +
-      `Please verify and confirm this payment. 🙏`
-    );
-    window.open(`https://wa.me/${whatsappNumber}?text=${message}`, '_blank');
     setPaid(true);
+
+    const itemsByVendor = items.reduce((groups, item) => {
+      const vendor = getVendorForProduct(item.id);
+      const vendorId = vendor?.id;
+      if (!vendorId) return groups;
+      if (!groups[vendorId]) groups[vendorId] = { vendor, items: [] };
+      groups[vendorId].items.push(item);
+      return groups;
+    }, {});
+
+    Object.values(itemsByVendor).forEach(({ vendor, items: vendorItems }) => {
+      if (!vendor?.whatsappNumber) return;
+      const itemLines = vendorItems.map((i, idx) =>
+        `${idx + 1}. ${i.name}\n   Quantity: ${i.quantity}\n   Amount: ₦${(i.price * i.quantity).toLocaleString()}`
+      ).join('\n\n');
+      const vendorSubtotal = vendorItems.reduce((s, i) => s + i.price * i.quantity, 0);
+      const msg = encodeURIComponent(
+        `🛒 *PAYMENT CONFIRMATION*\n\n` +
+        `━━━━━━━━━━━━━━━━━━\n` +
+        `*Customer:* ${form.fullName}\n` +
+        `*Phone:* ${form.phone}\n` +
+        `*Email:* ${form.email}\n` +
+        `*Order Ref:* ${txRef}\n\n` +
+        `━━━━ *ITEMS FROM ${vendor.businessName?.toUpperCase() || vendor.name?.toUpperCase()}* ━━━━\n${itemLines}\n\n` +
+        `*Subtotal:* ₦${vendorSubtotal.toLocaleString()}\n` +
+        `*Total Paid:* ₦${total.toLocaleString()}\n\n` +
+        `━━━━ *DELIVERY ADDRESS* ━━━━\n` +
+        `${form.address}\n${form.city}, ${form.state} ${form.zip}\n` +
+        `*Note:* ${form.deliveryNote || 'N/A'}\n\n` +
+        `Payment completed. Please verify and process this order. 🙏`
+      );
+      window.open(`https://wa.me/${formatWhatsAppNumber(vendor.whatsappNumber)}?text=${msg}`, '_blank');
+    });
   };
 
   const copyToClipboard = (text, label) => {
@@ -166,7 +233,7 @@ const Checkout = () => {
   if (success) {
     const couponCode = genCoupon();
     return (
-      <Container sx={{ py: 8, textAlign: 'center' }}>
+      <Container maxWidth="xl" sx={{ py: { xs: 8, md: 12 }, textAlign: 'center' }}>
         <SEO title="Order Placed" />
         <Box sx={{ display: 'flex', justifyContent: 'center', mb: 2 }}>
           <CheckCircleIcon sx={{ fontSize: 80, color: '#4CAF50' }} />
@@ -175,7 +242,7 @@ const Checkout = () => {
           Order Placed Successfully!
         </Typography>
 
-        <Paper elevation={0} sx={{ maxWidth: 500, mx: 'auto', p: 3, mb: 3, border: '1px solid #e0e0e0', borderRadius: 2, textAlign: 'left' }}>
+        <Paper elevation={0} sx={{ maxWidth: { xs: '100%', md: 540 }, mx: 'auto', p: 3, mb: 3, border: '1px solid #e0e0e0', borderRadius: 2, textAlign: 'left' }}>
           <Typography variant="subtitle2" sx={{ fontWeight: 700, color: '#1a1a1a', mb: 1.5, display: 'flex', alignItems: 'center', gap: 1 }}>
             <LocalShippingIcon sx={{ color: '#ff6b6b', fontSize: 20 }} /> Track Your Order
           </Typography>
@@ -197,7 +264,7 @@ const Checkout = () => {
           </Button>
         </Paper>
 
-        <Paper elevation={0} sx={{ maxWidth: 500, mx: 'auto', p: 3, mb: 3, border: '1px solid #e0e0e0', borderRadius: 2, textAlign: 'left' }}>
+        <Paper elevation={0} sx={{ maxWidth: { xs: '100%', md: 540 }, mx: 'auto', p: 3, mb: 3, border: '1px solid #e0e0e0', borderRadius: 2, textAlign: 'left' }}>
           <Typography variant="subtitle2" sx={{ fontWeight: 700, color: '#1a1a1a', mb: 1.5, display: 'flex', alignItems: 'center', gap: 1 }}>
             <DiscountIcon sx={{ color: '#ff6b6b', fontSize: 20 }} /> Your Coupon Code
           </Typography>
@@ -219,12 +286,12 @@ const Checkout = () => {
         </Paper>
 
         {paymentMethod === 'transfer' && !paid && (
-          <Paper elevation={0} sx={{ maxWidth: 500, mx: 'auto', p: 4, border: '1px solid #e0e0e0', borderRadius: 2, mb: 3, textAlign: 'left' }}>
+          <Paper elevation={0} sx={{ maxWidth: { xs: '100%', md: 540 }, mx: 'auto', p: 4, border: '1px solid #e0e0e0', borderRadius: 2, mb: 3, textAlign: 'left' }}>
             <Typography variant="h6" sx={{ fontWeight: 700, color: '#1a1a1a', mb: 2, fontFamily: '"Playfair Display", serif' }}>
               Make Your Payment
             </Typography>
             <Alert severity="info" sx={{ mb: 2 }}>
-              Transfer the exact amount to the account below, then click "I've Made Payment" to verify with the seller on WhatsApp.
+              Transfer the exact amount to the account below, then click "I've Made Payment" to mark this order as paid. We'll verify and process your order.
             </Alert>
             <Stack spacing={1.5} sx={{ mb: 3 }}>
               <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', p: 1.5, backgroundColor: '#f5f5f5', borderRadius: 1 }}>
@@ -277,39 +344,145 @@ const Checkout = () => {
               fullWidth
               variant="contained"
               size="large"
-              startIcon={<WhatsAppIcon />}
+              startIcon={<CheckCircleIcon />}
               onClick={handlePaid}
               sx={{
-                backgroundColor: '#25D366',
+                backgroundColor: '#1a1a1a',
                 color: '#fff',
                 fontWeight: 700,
                 py: 1.5,
-                '&:hover': { backgroundColor: '#20BD5A' },
+                '&:hover': { backgroundColor: '#000000' },
               }}
             >
-              I've Made Payment — Confirm via WhatsApp
+              I've Made Payment
             </Button>
           </Paper>
         )}
 
         {paid && (
-          <Paper elevation={0} sx={{ maxWidth: 500, mx: 'auto', p: 4, border: '1px solid #e0e0e0', borderRadius: 2, mb: 3 }}>
+          <Paper elevation={0} sx={{ maxWidth: { xs: '100%', md: 540 }, mx: 'auto', p: 4, border: '1px solid #e0e0e0', borderRadius: 2, mb: 3 }}>
             <Box sx={{ textAlign: 'center' }}>
-              <WhatsAppIcon sx={{ fontSize: 48, color: '#25D366', mb: 1 }} />
+              <CheckCircleIcon sx={{ fontSize: 48, color: '#4CAF50', mb: 1 }} />
               <Typography variant="h6" sx={{ fontWeight: 700, color: '#1a1a1a', mb: 1 }}>
-                WhatsApp Opened
+                Payment Confirmed
               </Typography>
               <Typography variant="body2" sx={{ color: '#6B5B4F', mb: 2 }}>
-                Send the pre-filled message to the seller for payment verification. Your order will be confirmed once payment is verified.
+                Your payment has been recorded. Each vendor has been notified via WhatsApp with your order details for processing.
               </Typography>
               <Chip
                 icon={<CheckCircleIcon />}
-                label="Awaiting Seller Confirmation"
-                sx={{ backgroundColor: '#FFF3E0', color: '#E65100', fontWeight: 600 }}
+                label="Payment Received — Vendors Notified"
+                sx={{ backgroundColor: '#E8F5E9', color: '#2E7D32', fontWeight: 600 }}
               />
             </Box>
           </Paper>
         )}
+
+        {/* Multi-Vendor Checkout */}
+        {(() => {
+          const itemsByVendor = items.reduce((groups, item) => {
+            const vendor = getVendorForProduct(item.id);
+            const vendorId = vendor?.id || item.vendorId;
+            if (!vendorId) return groups;
+            if (!groups[vendorId]) {
+              groups[vendorId] = { vendor, items: [] };
+            }
+            groups[vendorId].items.push(item);
+            return groups;
+          }, {});
+
+          const vendorEntries = Object.entries(itemsByVendor).filter(([, g]) => g.vendor);
+
+          if (vendorEntries.length === 0) {
+            return (
+              <Paper elevation={0} sx={{ maxWidth: { xs: '100%', md: 540 }, mx: 'auto', p: 3, mb: 3, border: '1px solid #e0e0e0', borderRadius: 2, textAlign: 'left' }}>
+                <Alert severity="warning">
+                  Vendor contact information is currently unavailable for some products. Please contact Drip City support.
+                </Alert>
+              </Paper>
+            );
+          }
+
+          return vendorEntries.map(([vendorId, group]) => {
+            const vendor = group.vendor;
+            const vendorItems = group.items;
+            const vendorSubtotal = vendorItems.reduce((sum, item) => sum + item.price * item.quantity, 0);
+            const whatsappUrl = `https://wa.me/${formatWhatsAppNumber(vendor.whatsappNumber)}?text=${generateVendorOrderMessage(vendor, vendorItems, { name: form.fullName, phone: form.phone }, txRef)}`;
+            const missingVendorInfo = !vendor.whatsappNumber;
+
+            return (
+              <Paper key={vendorId} elevation={0} sx={{ maxWidth: { xs: '100%', md: 540 }, mx: 'auto', p: 3, mb: 3, border: '1px solid #e0e0e0', borderRadius: 2, textAlign: 'left' }}>
+                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5, mb: 2 }}>
+                  <StorefrontIcon sx={{ color: '#ff6b6b', fontSize: 28 }} />
+                  <Box>
+                    <Typography variant="subtitle1" sx={{ fontWeight: 700, color: '#1a1a1a' }}>
+                      {vendor.businessName || vendor.name}
+                    </Typography>
+                    <Typography variant="caption" sx={{ color: '#999', display: 'flex', alignItems: 'center', gap: 0.5 }}>
+                      <PhoneIcon sx={{ fontSize: 14 }} /> {vendor.phoneNumber || vendor.whatsappNumber || 'N/A'}
+                    </Typography>
+                  </Box>
+                </Box>
+
+                <Divider sx={{ mb: 2 }} />
+
+                <Typography variant="body2" sx={{ fontWeight: 600, color: '#1a1a1a', mb: 1 }}>
+                  Products from this vendor:
+                </Typography>
+
+                <Stack spacing={1.5} sx={{ mb: 2 }}>
+                  {vendorItems.map((item) => (
+                    <Box key={item.id} sx={{ display: 'flex', gap: 2, alignItems: 'center' }}>
+                      <Box component="img" src={item.image} alt={item.name}
+                        sx={{ width: 48, height: 48, objectFit: 'cover', borderRadius: 1, backgroundColor: '#f5f5f5' }} />
+                      <Box sx={{ flex: 1 }}>
+                        <Typography variant="body2" sx={{ fontWeight: 600, color: '#1a1a1a' }}>{item.name}</Typography>
+                        <Typography variant="caption" sx={{ color: '#999' }}>
+                          Qty: {item.quantity} × ₦{item.price.toLocaleString()}
+                        </Typography>
+                      </Box>
+                      <Typography variant="body2" sx={{ fontWeight: 600, color: '#ff6b6b' }}>
+                        ₦{(item.price * item.quantity).toLocaleString()}
+                      </Typography>
+                    </Box>
+                  ))}
+                </Stack>
+
+                <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 2 }}>
+                  <Typography variant="subtitle2" sx={{ fontWeight: 700, color: '#1a1a1a' }}>
+                    Subtotal
+                  </Typography>
+                  <Typography variant="subtitle2" sx={{ fontWeight: 700, color: '#ff6b6b' }}>
+                    ₦{vendorSubtotal.toLocaleString()}
+                  </Typography>
+                </Box>
+
+                {missingVendorInfo ? (
+                  <Alert severity="warning" sx={{ mb: 2 }}>
+                    Vendor contact information is currently unavailable for this product. Please contact Drip City support.
+                  </Alert>
+                ) : (
+                  <Button
+                    fullWidth
+                    variant="contained"
+                    size="large"
+                    startIcon={<WhatsAppIcon />}
+                    onClick={() => window.open(whatsappUrl, '_blank')}
+                    sx={{
+                      backgroundColor: '#25D366',
+                      color: '#fff',
+                      fontWeight: 700,
+                      py: 1.5,
+                      '&:hover': { backgroundColor: '#20BD5A' },
+                    }}
+                  >
+                    Continue Order on WhatsApp — {vendor.name}
+                  </Button>
+                )}
+              </Paper>
+            );
+          });
+        })()}
 
         {(paid || paymentMethod === 'delivery') && (
           <Button
@@ -343,12 +516,12 @@ const Checkout = () => {
     <Box sx={{ width: '100%' }}>
       <SEO title="Checkout" />
       <Box sx={{ background: 'linear-gradient(135deg, #000000 0%, #1a1a1a 100%)', color: '#f5f5f5', py: 4, textAlign: 'center' }}>
-        <Container>
+        <Container maxWidth="xl">
           <Typography variant="h4" sx={{ fontWeight: 700, fontFamily: '"Playfair Display", serif' }}>Checkout</Typography>
         </Container>
       </Box>
 
-      <Container sx={{ py: 4 }}>
+      <Container maxWidth="xl" sx={{ py: 4 }}>
         <form onSubmit={handlePlaceOrder}>
           <Grid container spacing={4}>
             <Grid item xs={12} md={7}>
@@ -416,13 +589,25 @@ const Checkout = () => {
                 <FormControl>
                   <RadioGroup value={paymentMethod} onChange={(e) => setPaymentMethod(e.target.value)}>
                     <FormControlLabel
+                      value="paystack"
+                      control={<Radio sx={{ '&.Mui-checked': { color: '#1a1a1a' } }} />}
+                      label={
+                        <Box>
+                          <Typography sx={{ fontWeight: 600, color: '#1a1a1a' }}>Pay with Card (Paystack)</Typography>
+                          <Typography variant="caption" sx={{ color: '#1a1a1a' }}>
+                            Secure payment via card, USSD, or bank transfer
+                          </Typography>
+                        </Box>
+                      }
+                    />
+                    <FormControlLabel
                       value="transfer"
                       control={<Radio sx={{ '&.Mui-checked': { color: '#1a1a1a' } }} />}
                       label={
                         <Box>
                           <Typography sx={{ fontWeight: 600, color: '#1a1a1a' }}>Bank Transfer</Typography>
                           <Typography variant="caption" sx={{ color: '#1a1a1a' }}>
-                            Pay via bank transfer and confirm with WhatsApp
+                            Pay via bank transfer directly to our account
                           </Typography>
                         </Box>
                       }
@@ -485,12 +670,17 @@ const Checkout = () => {
                     fontWeight: 700, py: 1.5,
                   }}
                 >
-                  {processing ? 'Processing...' : `Place Order — ₦${total.toLocaleString()}`}
+                  {processing ? 'Processing...' : paymentMethod === 'paystack' ? `Pay ₦${total.toLocaleString()} with Card` : `Place Order — ₦${total.toLocaleString()}`}
                 </Button>
 
                 {paymentMethod === 'transfer' && (
                   <Typography variant="caption" sx={{ display: 'block', textAlign: 'center', mt: 1, color: '#1a1a1a' }}>
-                    After placing order, you'll need to transfer the amount and confirm via WhatsApp.
+                    After placing order, you'll need to transfer the amount and confirm payment on this page.
+                  </Typography>
+                )}
+                {paymentMethod === 'paystack' && (
+                  <Typography variant="caption" sx={{ display: 'block', textAlign: 'center', mt: 1, color: '#1a1a1a' }}>
+                    You'll be redirected to Paystack's secure checkout to complete payment.
                   </Typography>
                 )}
               </Paper>
@@ -504,7 +694,7 @@ const Checkout = () => {
                 <Stack spacing={2} divider={<Divider />}>
                   {items.map(item => (
                     <Box key={item.id} sx={{ display: 'flex', gap: 2, alignItems: 'center' }}>
-                      <Box component="img" src={item.image} alt={item.name} sx={{ width: 60, height: 60, objectFit: 'cover', borderRadius: 1 }} />
+                      <Box component="img" src={item.image} alt={item.name} sx={{ width: { xs: 48, md: 64 }, height: { xs: 48, md: 64 }, objectFit: 'cover', borderRadius: 1 }} />
                       <Box sx={{ flex: 1 }}>
                         <Typography variant="body2" sx={{ fontWeight: 600, color: '#1a1a1a' }}>{item.name}</Typography>
                         <Typography variant="caption" color="textSecondary">Qty: {item.quantity}</Typography>

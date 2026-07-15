@@ -10,7 +10,9 @@ import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import CloseIcon from '@mui/icons-material/Close';
 import ProductBadge from '../components/ProductBadge';
 import SEO from '../components/SEO';
-import { products, collections, styleIdeas } from '../data/products';
+import { collections, styleIdeas } from '../data/products';
+import { getVendorForProduct } from '../data/vendors';
+import { useProducts } from '../services/useLiveData';
 import { useCart } from '../contexts/CartContext';
 import { useWishlist } from '../contexts/WishlistContext';
 
@@ -19,6 +21,7 @@ const CollectionPage = ({ collectionId }) => {
   const { addItem } = useCart();
   const { toggleItem, isInWishlist } = useWishlist();
   const [selectedFabric, setSelectedFabric] = useState(null);
+  const products = useProducts();
 
   const collection = collections.find(c => c.id === collectionId);
   const filteredProducts = products.filter(p => p.collection === collectionId);
@@ -29,7 +32,7 @@ const CollectionPage = ({ collectionId }) => {
     <Box sx={{ width: '100%' }}>
       <SEO title={collection.name} description={collection.description} />
       <Box sx={{ borderBottom: '1px solid', borderColor: 'divider', py: { xs: 4, md: 6 } }}>
-        <Container>
+        <Container maxWidth="xl">
           <Button
             startIcon={<ArrowBackIcon />}
             onClick={() => navigate('/')}
@@ -40,13 +43,13 @@ const CollectionPage = ({ collectionId }) => {
           <Typography variant="h3" sx={{ fontWeight: 700, mb: 1, fontSize: { xs: '1.8rem', md: '2.5rem' } }}>
             {collection.name}
           </Typography>
-          <Typography variant="body1" sx={{ color: 'text.secondary', maxWidth: 500 }}>
+          <Typography variant="body1" sx={{ color: 'text.secondary', maxWidth: { xs: '100%', md: 600 } }}>
             {collection.description}
           </Typography>
         </Container>
       </Box>
 
-      <Container sx={{ py: 6 }}>
+      <Container maxWidth="xl" sx={{ py: { xs: 6, md: 10 } }}>
         <Grid container spacing={3}>
           {filteredProducts.map((fabric) => (
             <Grid item xs={12} sm={6} md={4} key={fabric.id}>
@@ -73,7 +76,7 @@ const CollectionPage = ({ collectionId }) => {
                 <Box sx={{ position: 'relative', overflow: 'hidden', backgroundColor: '#f5f5f5' }}>
                   <CardMedia
                     component="img"
-                    height="260"
+                    height={{ xs: 200, md: 300 }}
                     image={fabric.images[0]}
                     alt={fabric.name}
                     sx={{ objectFit: 'cover', transition: 'transform 0.5s', '&:hover': { transform: 'scale(1.06)' } }}
@@ -142,7 +145,7 @@ const CollectionPage = ({ collectionId }) => {
                   {selectedFabric.images.length > 1 && (
                     <Stack direction="row" spacing={0.5} sx={{ p: 1, overflow: 'auto' }}>
                       {selectedFabric.images.map((img, idx) => (
-                        <Box key={idx} component="img" src={img} alt="" sx={{ width: 60, height: 60, objectFit: 'cover', cursor: 'pointer', border: '1px solid', borderColor: 'divider', flexShrink: 0 }} />
+                        <Box key={idx} component="img" src={img} alt="" sx={{ width: { xs: 48, md: 64 }, height: { xs: 48, md: 64 }, objectFit: 'cover', cursor: 'pointer', border: '1px solid', borderColor: 'divider', flexShrink: 0 }} />
                       ))}
                     </Stack>
                   )}
@@ -179,10 +182,10 @@ const CollectionPage = ({ collectionId }) => {
                   </Box>
 
                   <Stack direction="row" spacing={1}>
-                    <Button variant="contained" startIcon={<ShoppingCartIcon />} onClick={() => addItem({ id: selectedFabric.id, name: selectedFabric.name, price: selectedFabric.price, image: selectedFabric.images[0] })} sx={{ backgroundColor: '#1a1a1a', '&:hover': { backgroundColor: '#000' }, flex: 1 }}>
+                    <Button variant="contained" startIcon={<ShoppingCartIcon />} onClick={() => { const v = getVendorForProduct(selectedFabric.id); addItem({ id: selectedFabric.id, name: selectedFabric.name, price: selectedFabric.price, image: selectedFabric.images[0], vendorId: v?.id, inStock: selectedFabric.inStock }); }} sx={{ backgroundColor: '#1a1a1a', '&:hover': { backgroundColor: '#000' }, flex: 1 }}>
                       Add to Cart
                     </Button>
-                    <IconButton onClick={() => toggleItem({ id: selectedFabric.id, name: selectedFabric.name, price: selectedFabric.price, image: selectedFabric.images[0] })} sx={{ color: isInWishlist(selectedFabric.id) ? '#ff6b6b' : '#ccc', border: '1px solid', borderColor: 'divider' }}>
+                    <IconButton onClick={() => toggleItem({ id: selectedFabric.id, name: selectedFabric.name, price: selectedFabric.price, image: selectedFabric.images[0], inStock: selectedFabric.inStock })} sx={{ color: isInWishlist(selectedFabric.id) ? '#ff6b6b' : '#ccc', border: '1px solid', borderColor: 'divider' }}>
                       <FavoriteBorderIcon />
                     </IconButton>
                   </Stack>

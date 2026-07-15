@@ -7,12 +7,14 @@ import {
 import ShoppingCartIcon from '@mui/icons-material/ShoppingCart';
 import ProductBadge from '../components/ProductBadge';
 import SEO from '../components/SEO';
-import { products } from '../data/products';
+import { getVendorForProduct } from '../data/vendors';
+import { useProducts } from '../services/useLiveData';
 import { useCart } from '../contexts/CartContext';
 
 const Deals = () => {
   const navigate = useNavigate();
   const { addItem } = useCart();
+  const products = useProducts();
   const [timeLeft, setTimeLeft] = useState({ days: 5, hours: 12, minutes: 30, seconds: 45 });
 
   useEffect(() => {
@@ -33,6 +35,7 @@ const Deals = () => {
     id: p.id, name: p.name, originalPrice: p.comparePrice || Math.round(p.price / (1 - p.discount / 100)),
     dealPrice: p.price, discount: p.discount, image: p.images[0],
     soldQuantity: p.soldQuantity, stockQuantity: p.stockQuantity, status: p.status, isNew: p.isNew,
+    inStock: p.inStock,
   }));
 
   const TimeUnit = ({ value, label }) => (
@@ -67,7 +70,7 @@ const Deals = () => {
         </Typography>
       </Box>
 
-      <Container sx={{ py: 6 }}>
+      <Container maxWidth="xl" sx={{ py: { xs: 6, md: 10 } }}>
         <Paper
           elevation={0}
           sx={{
@@ -112,7 +115,7 @@ const Deals = () => {
                   -{deal.discount}%
                 </Box>
                 <CardMedia
-                  component="img" height="250"
+                  component="img" height={{ xs: 200, md: 280 }}
                   image={deal.image} alt={deal.name}
                   sx={{ objectFit: 'cover' }}
                 />
@@ -137,7 +140,7 @@ const Deals = () => {
                 <CardActions sx={{ px: 2, pb: 2 }}>
                   <Button
                     fullWidth variant="contained" startIcon={<ShoppingCartIcon />}
-                    onClick={() => addItem({ id: deal.id, name: deal.name, price: deal.dealPrice, image: deal.image })}
+                    onClick={() => { const v = getVendorForProduct(deal.id); addItem({ id: deal.id, name: deal.name, price: deal.dealPrice, image: deal.image, vendorId: v?.id, inStock: deal.inStock }); }}
                     sx={{ backgroundColor: '#ff6b6b', color: '#1a1a1a', fontWeight: 700, '&:hover': { backgroundColor: '#E8C9A0' } }}
                   >
                     Shop Now
@@ -159,7 +162,7 @@ const Deals = () => {
           <Typography variant="h5" sx={{ fontWeight: 700, mb: 3 }}>
             Get Exclusive Deals In Your Inbox!
           </Typography>
-          <Stack direction={{ xs: 'column', sm: 'row' }} spacing={2} justifyContent="center" sx={{ maxWidth: 500, mx: 'auto' }}>
+          <Stack direction={{ xs: 'column', sm: 'row' }} spacing={2} justifyContent="center" sx={{ maxWidth: { xs: '100%', md: 560 }, mx: 'auto' }}>
             <TextField
               placeholder="Enter your email"
               type="email" variant="outlined" fullWidth

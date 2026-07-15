@@ -47,7 +47,7 @@ const MeasurementGuide = () => {
           color: '#f5f5f5', py: 6, textAlign: 'center',
         }}
       >
-        <Container>
+        <Container maxWidth="xl">
           <Typography variant="h3" sx={{ fontWeight: 800, mb: 2, fontFamily: '"Playfair Display", serif' }}>
             Fabric Measurement Guide
           </Typography>
@@ -57,7 +57,7 @@ const MeasurementGuide = () => {
         </Container>
       </Box>
 
-      <Container sx={{ py: 6 }}>
+      <Container maxWidth="xl" sx={{ py: { xs: 6, md: 10 } }}>
         <Grid container spacing={4}>
           <Grid item xs={12} md={5}>
             <Paper elevation={0} sx={{ p: 4, border: '1px solid #e0e0e0', borderRadius: 2 }}>

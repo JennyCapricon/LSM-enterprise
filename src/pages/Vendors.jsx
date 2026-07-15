@@ -6,24 +6,24 @@ import {
 import VerifiedIcon from '@mui/icons-material/Verified';
 import StarIcon from '@mui/icons-material/Star';
 import SEO from '../components/SEO';
+import { useVendors, useProducts } from '../services/useLiveData';
 
 const Vendors = () => {
   const navigate = useNavigate();
+  const vendors = useVendors();
+  const products = useProducts();
 
-  const vendors = [
-    { name: 'Lagos Fabrics Co.', rating: 4.8, products: 45, verified: true, since: '2021' },
-    { name: 'Premium Textiles NG', rating: 4.9, products: 32, verified: true, since: '2020' },
-    { name: 'African Lace House', rating: 4.7, products: 28, verified: true, since: '2022' },
-    { name: 'Brocade World', rating: 4.8, products: 52, verified: true, since: '2020' },
-    { name: 'LSM Enterprise', rating: 5.0, products: 200, verified: true, since: '2000' },
-    { name: 'C. Hez Global Investment Ltd', rating: 4.9, products: 85, verified: true, since: '2020' },
-  ];
+  const vendorProductCounts = {};
+  products.forEach(p => {
+    const vId = p.vendorId || p.vendor_id;
+    if (vId) vendorProductCounts[vId] = (vendorProductCounts[vId] || 0) + 1;
+  });
 
   return (
     <Box sx={{ width: '100%' }}>
       <SEO title="Explore Vendors" description="Discover trusted fashion brands and designers on JAY." />
       <Box sx={{ background: 'linear-gradient(135deg, #000000 0%, #1a1a1a 100%)', color: '#f5f5f5', py: 8, textAlign: 'center' }}>
-        <Container>
+        <Container maxWidth="xl">
           <Typography variant="h3" sx={{ fontWeight: 800, mb: 2, fontFamily: '"Playfair Display", serif' }}>
             Explore Vendors
           </Typography>
@@ -40,13 +40,13 @@ const Vendors = () => {
         </Container>
       </Box>
 
-      <Container sx={{ py: 8 }}>
+      <Container maxWidth="xl" sx={{ py: { xs: 8, md: 12 } }}>
         <Typography variant="h4" sx={{ fontWeight: 700, mb: 4, color: '#1a1a1a', fontFamily: '"Playfair Display", serif' }}>
           Verified Vendors
         </Typography>
         <Grid container spacing={3}>
-          {vendors.map((vendor, index) => (
-            <Grid item xs={12} sm={6} md={4} key={index}>
+          {vendors.map((vendor) => (
+            <Grid item xs={12} sm={6} md={4} key={vendor.id}>
               <Card
                 sx={{
                   border: '1px solid #e0e0e0', boxShadow: 'none', cursor: 'pointer',
@@ -58,7 +58,7 @@ const Vendors = () => {
                   <Avatar
                     sx={{ width: 80, height: 80, bgcolor: '#ff6b6b', fontSize: 32, mx: 'auto', mb: 2 }}
                   >
-                    {vendor.name.charAt(0)}
+                    {(vendor.businessName || vendor.name).charAt(0)}
                   </Avatar>
                   <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 1, mb: 1 }}>
                     <Typography variant="h6" sx={{ fontWeight: 700, color: '#1a1a1a', fontFamily: '"Playfair Display", serif' }}>
@@ -71,7 +71,7 @@ const Vendors = () => {
                     <Typography variant="body1" sx={{ fontWeight: 600, color: '#1a1a1a' }}>{vendor.rating}</Typography>
                   </Box>
                   <Typography variant="body2" sx={{ color: '#1a1a1a' }}>
-                    {vendor.products} products • Since {vendor.since}
+                    {vendorProductCounts[vendor.id] || 0} products • Since {vendor.since}
                   </Typography>
                 </CardContent>
               </Card>
@@ -79,26 +79,6 @@ const Vendors = () => {
           ))}
         </Grid>
       </Container>
-
-      <Box sx={{ backgroundColor: '#f5f5f5', py: 8, borderTop: '1px solid #e0e0e0' }}>
-        <Container>
-          <Paper elevation={0} sx={{ p: 6, textAlign: 'center', border: '1px solid #e0e0e0', borderRadius: 2 }}>
-            <Typography variant="h4" sx={{ fontWeight: 700, mb: 2, color: '#1a1a1a', fontFamily: '"Playfair Display", serif' }}>
-              Are You a Vendor?
-            </Typography>
-            <Typography variant="body1" sx={{ color: '#1a1a1a', mb: 4, maxWidth: 500, mx: 'auto' }}>
-              Join our marketplace and connect with thousands of shoppers looking for quality fashion.
-            </Typography>
-            <Button
-              variant="contained" size="large"
-              onClick={() => navigate('/register')}
-              sx={{ backgroundColor: '#1a1a1a', '&:hover': { backgroundColor: '#000000' }, fontWeight: 700, px: 4 }}
-            >
-              Register as Vendor
-            </Button>
-          </Paper>
-        </Container>
-      </Box>
     </Box>
   );
 };

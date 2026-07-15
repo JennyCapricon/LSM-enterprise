@@ -8,6 +8,7 @@ import ReplyIcon from '@mui/icons-material/Reply';
 import PaymentIcon from '@mui/icons-material/Payment';
 import AccountCircleIcon from '@mui/icons-material/AccountCircle';
 import SEO from '../components/SEO';
+import { vendors, formatWhatsAppNumber } from '../data/vendors';
 
 const faqs = [
   { section: 'Orders & Payments', icon: <PaymentIcon />, questions: [
@@ -48,7 +49,7 @@ const HelpCenter = () => {
   })).filter(s => s.questions.length > 0);
 
   return (
-    <Container maxWidth="md" sx={{ py: { xs: 4, md: 6 } }}>
+    <Container maxWidth="xl" sx={{ py: { xs: 4, md: 6 } }}>
       <SEO title="Help Center" />
       <Box sx={{ textAlign: 'center', mb: 5 }}>
         <HelpIcon sx={{ fontSize: 48, color: '#ff6b6b', mb: 2 }} />
@@ -61,7 +62,7 @@ const HelpCenter = () => {
         <TextField
           fullWidth placeholder="Search for answers..."
           value={search} onChange={(e) => setSearch(e.target.value)}
-          sx={{ maxWidth: 500 }}
+          sx={{ maxWidth: { xs: '100%', md: 560 } }}
           InputProps={{
             startAdornment: <InputAdornment position="start"><SearchIcon sx={{ color: '#999' }} /></InputAdornment>,
             sx: { backgroundColor: '#f8f6f2', borderRadius: 2, '& fieldset': { border: 'none' } },
@@ -98,10 +99,12 @@ const HelpCenter = () => {
         <Typography variant="h6" sx={{ fontWeight: 700, mb: 1 }}>Still need help?</Typography>
         <Typography variant="body2" sx={{ color: 'text.secondary', mb: 2 }}>Our support team is ready to assist you</Typography>
         <Button variant="contained" onClick={() => {
+          const mainVendor = vendors[4];
+          const whatsappNumber = formatWhatsAppNumber(mainVendor.whatsappNumber);
           const msg = encodeURIComponent(
             `Hi, my name is [Your Name].\n\nI need help with:\n[Describe your issue here]\n\nOrder ID (if any): [Order ID]\n\nThank you!`
           );
-          window.open(`https://wa.me/2349027089929?text=${msg}`, '_blank');
+          window.open(`https://wa.me/${whatsappNumber}?text=${msg}`, '_blank');
         }}
           sx={{ backgroundColor: '#1a1a2e', '&:hover': { backgroundColor: '#2d2d4e' }, fontWeight: 600 }}>
           Contact via WhatsApp

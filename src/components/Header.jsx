@@ -27,7 +27,7 @@ import {
   MenuItem,
 } from '@mui/material';
 import MenuIcon from '@mui/icons-material/Menu';
-import MoreHorizIcon from '@mui/icons-material/MoreHoriz';
+import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
 import FavoriteBorderIcon from '@mui/icons-material/FavoriteBorder';
 import ShoppingCartIcon from '@mui/icons-material/ShoppingCart';
 import SearchIcon from '@mui/icons-material/Search';
@@ -38,7 +38,7 @@ import { useWishlist } from '../contexts/WishlistContext';
 import { useAuth } from '../contexts/AuthContext';
 import { useSearch } from '../contexts/SearchContext';
 import { useCart } from '../contexts/CartContext';
-import { products } from '../data/products';
+import { useProducts } from '../services/useLiveData';
 
 const Header = () => {
   const navigate = useNavigate();
@@ -47,6 +47,7 @@ const Header = () => {
   const isMobile = useMediaQuery(theme.breakpoints.down('md'));
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [searchResults, setSearchResults] = useState([]);
+  const products = useProducts();
   const [menuOpen, setMenuOpen] = useState(false);
   const menuAnchorRef = useRef(null);
   const { itemCount } = useCart();
@@ -56,6 +57,9 @@ const Header = () => {
 
   const visibleLinks = [
     { label: 'Home', path: '/' },
+    { label: 'Blog', path: '/blog' },
+    { label: 'Marketplace', path: '/marketplace' },
+    { label: 'About', path: '/about' },
   ];
 
   const moreLinks = [
@@ -65,12 +69,9 @@ const Header = () => {
     { label: "Men's Fashion", path: '/mens-fashion' },
     { label: 'Children Fashion', path: '/children-fashion' },
     { label: 'Measurement Guide', path: '/measurement-guide' },
-    { label: 'About', path: '/about' },
-    { label: 'Blog', path: '/blog' },
     { label: 'Help Center', path: '/help' },
     { label: 'Shipping Info', path: '/shipping' },
     { label: 'Contact', path: '/contact' },
-    { label: 'Marketplace', path: '/marketplace' },
     { label: 'Vendors', path: '/vendors' },
   ];
 
@@ -143,7 +144,7 @@ const Header = () => {
 
   return (
     <>
-      <AppBar position="sticky" elevation={0} sx={{ backgroundColor: '#fff', color: '#1a1a1a', borderBottom: '1px solid', borderColor: 'divider' }}>
+      <AppBar position="sticky" elevation={0} sx={{ backgroundColor: 'rgba(255,255,255,0.12)', backdropFilter: 'blur(24px)', WebkitBackdropFilter: 'blur(24px)', color: '#1a1a1a', borderBottom: '1px solid rgba(255,255,255,0.2)', boxShadow: '0 4px 30px rgba(0,0,0,0.08)' }}>
         <Toolbar sx={{ display: 'flex', justifyContent: 'space-between', minHeight: { xs: 56, md: 64 }, px: { xs: 2, md: 4 } }}>
           <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
             {isMobile && (
@@ -166,9 +167,9 @@ const Header = () => {
                 </Link>
               ))}
 
-              {/* THREE-DOT MORE MENU */}
-              <IconButton ref={menuAnchorRef} onClick={handleToggleMenu} size="small" sx={{ ml: 0.5, color: '#666', '&:hover': { color: '#1a1a1a' } }}>
-                <MoreHorizIcon />
+              {/* TOGGLE MENU */}
+              <IconButton ref={menuAnchorRef} onClick={handleToggleMenu} size="small" sx={{ ml: 0.5, color: '#666', '&:hover': { color: '#1a1a1a' }, transform: menuOpen ? 'rotate(180deg)' : 'rotate(0deg)', transition: 'transform 0.3s' }}>
+                <KeyboardArrowDownIcon />
               </IconButton>
               <Popper open={menuOpen} anchorEl={menuAnchorRef.current} transition disablePortal placement="bottom-start" sx={{ zIndex: 1300 }}>
                 {({ TransitionProps }) => (

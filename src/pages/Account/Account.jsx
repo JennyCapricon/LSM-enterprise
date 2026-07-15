@@ -25,11 +25,11 @@ const Account = () => {
     <Box sx={{ width: '100%' }}>
       <SEO title="My Account" />
       <Box sx={{ background: 'linear-gradient(135deg, #000000 0%, #1a1a1a 100%)', color: '#f5f5f5', py: 4, textAlign: 'center' }}>
-        <Container>
+        <Container maxWidth="xl">
           <Typography variant="h4" sx={{ fontWeight: 700, fontFamily: '"Playfair Display", serif' }}>My Account</Typography>
         </Container>
       </Box>
-      <Container sx={{ py: 4 }}>
+      <Container maxWidth="xl" sx={{ py: 4 }}>
         <Grid container spacing={4}>
           <Grid item xs={12} md={4}>
             <Paper elevation={0} sx={{ p: 3, border: '1px solid #e0e0e0', borderRadius: 2, textAlign: 'center' }}>

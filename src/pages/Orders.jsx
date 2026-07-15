@@ -16,6 +16,7 @@ import FiberManualRecordIcon from '@mui/icons-material/FiberManualRecord';
 import SEO from '../components/SEO';
 import { useOrders } from '../contexts/OrderContext';
 import { useAuth } from '../contexts/AuthContext';
+import { getVendorById } from '../data/vendors';
 
 const tabs = [
   { label: 'All Orders', icon: <ShoppingBagIcon />, filter: () => true },
@@ -128,7 +129,7 @@ const Orders = () => {
   };
 
   return (
-    <Container maxWidth="lg" sx={{ py: 6 }}>
+    <Container maxWidth="xl" sx={{ py: { xs: 6, md: 10 } }}>
       <SEO title="My Orders" />
       <Typography variant="h4" sx={{ fontWeight: 700, mb: 1 }}>My Orders</Typography>
       <Typography variant="body1" sx={{ color: 'text.secondary', mb: 4 }}>
@@ -163,16 +164,25 @@ const Orders = () => {
               </Box>
               <Divider sx={{ mb: 2 }} />
               <Stack spacing={1.5}>
-                {order.items.map((item, idx) => (
-                  <Box key={idx} sx={{ display: 'flex', gap: 2, alignItems: 'center' }}>
-                    <Avatar src={item.image} variant="rounded" sx={{ width: 56, height: 56 }} />
-                    <Box sx={{ flex: 1 }}>
-                      <Typography variant="body2" sx={{ fontWeight: 600 }}>{item.name}</Typography>
-                      <Typography variant="caption" sx={{ color: '#999' }}>Qty: {item.quantity} × ₦{item.price.toFixed(2)}</Typography>
+                {order.items.map((item, idx) => {
+                  const vendor = getVendorById(item.vendorId);
+                  return (
+                    <Box key={idx} sx={{ display: 'flex', gap: 2, alignItems: 'center' }}>
+                      <Avatar src={item.image} variant="rounded" sx={{ width: 56, height: 56 }} />
+                      <Box sx={{ flex: 1 }}>
+                        <Typography variant="body2" sx={{ fontWeight: 600 }}>{item.name}</Typography>
+                        <Typography variant="caption" sx={{ color: '#999' }}>Qty: {item.quantity} × ₦{item.price.toFixed(2)}</Typography>
+                        {vendor && (
+                          <Typography variant="caption" sx={{ color: '#999', display: 'block', fontSize: '0.65rem' }}>
+                            Vendor: {vendor.businessName || vendor.name}
+                            {vendor.whatsappNumber && ` · WhatsApp: ${vendor.whatsappNumber}`}
+                          </Typography>
+                        )}
+                      </Box>
+                      <Typography variant="body2" sx={{ fontWeight: 600 }}>₦{(item.price * item.quantity).toFixed(2)}</Typography>
                     </Box>
-                    <Typography variant="body2" sx={{ fontWeight: 600 }}>₦{(item.price * item.quantity).toFixed(2)}</Typography>
-                  </Box>
-                ))}
+                  );
+                })}
               </Stack>
               {order.status !== 'returned' && (
                 <Box sx={{ mt: 1, px: { xs: 0, sm: 2 } }}>

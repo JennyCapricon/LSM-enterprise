@@ -8,6 +8,7 @@ import CloseIcon from '@mui/icons-material/Close';
 import LocalShippingIcon from '@mui/icons-material/LocalShipping';
 import ContentCutIcon from '@mui/icons-material/ContentCut';
 import VerifiedUserIcon from '@mui/icons-material/VerifiedUser';
+import { getVendorForProduct } from '../data/vendors';
 import { useCart } from '../contexts/CartContext';
 import { useWishlist } from '../contexts/WishlistContext';
 import { useNavigate } from 'react-router-dom';
@@ -78,11 +79,11 @@ const QuickViewModal = ({ open, onClose, product }) => {
 
               <Stack direction="row" spacing={2} sx={{ mb: 2 }}>
                 <Button variant="contained" size="small" startIcon={<ShoppingCartIcon />}
-                  onClick={() => { addItem({ id: product.id, name: product.name, price: product.price, image: product.images[0] }); onClose(); }}
+                  onClick={() => { const v = getVendorForProduct(product.id); addItem({ id: product.id, name: product.name, price: product.price, image: product.images[0], vendorId: v?.id, inStock: product.inStock }); onClose(); }}
                   sx={{ backgroundColor: '#1a1a1a', '&:hover': { backgroundColor: '#000' }, fontWeight: 600 }}>
                   Add to Cart
                 </Button>
-                <IconButton size="small" onClick={() => toggleItem({ id: product.id, name: product.name, price: product.price, image: product.images[0] })}
+                <IconButton size="small" onClick={() => toggleItem({ id: product.id, name: product.name, price: product.price, image: product.images[0], inStock: product.inStock })}
                   sx={{ color: isInWishlist(product.id) ? '#ff6b6b' : '#ccc', border: '1px solid', borderColor: 'divider' }}>
                   <FavoriteBorderIcon />
                 </IconButton>

@@ -54,7 +54,7 @@ const Contact = () => {
     <Box sx={{ width: '100%' }}>
       <SEO title="Contact Us" description="Get in touch with JAY. We're based in Lagos, Nigeria — serving customers worldwide." />
       <Box sx={{ background: 'linear-gradient(135deg, #000000 0%, #1a1a1a 100%)', color: '#f5f5f5', py: 8, textAlign: 'center' }}>
-        <Container>
+        <Container maxWidth="xl">
           <Typography variant="h3" sx={{ fontWeight: 800, mb: 2, fontFamily: '"Playfair Display", serif' }}>
             Get in Touch
           </Typography>
@@ -64,7 +64,7 @@ const Contact = () => {
         </Container>
       </Box>
 
-      <Container sx={{ py: 8 }}>
+      <Container maxWidth="xl" sx={{ py: { xs: 8, md: 12 } }}>
         <Grid container spacing={4}>
           <Grid item xs={12} md={5}>
             <Typography variant="h5" sx={{ fontWeight: 700, mb: 3, color: '#1a1a1a', fontFamily: '"Playfair Display", serif' }}>
@@ -120,11 +120,11 @@ const Contact = () => {
       </Container>
 
       <Box sx={{ width: '100%', py: 8, backgroundColor: '#f5f5f5' }}>
-        <Container>
+        <Container maxWidth="xl">
           <Typography variant="h5" sx={{ fontWeight: 700, mb: 3, textAlign: 'center', color: '#1a1a1a', fontFamily: '"Playfair Display", serif' }}>
             Find Us on the Map
           </Typography>
-          <Paper elevation={0} sx={{ height: 400, borderRadius: 2, overflow: 'hidden', border: '1px solid #e0e0e0' }}>
+          <Paper elevation={0} sx={{ height: { xs: 280, md: 450 }, borderRadius: 2, overflow: 'hidden', border: '1px solid #e0e0e0' }}>
             <iframe
               src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3964.576638258066!2d3.376718!3d6.465422!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x103b8b2ae68280c1%3A0xdc9e87a367c3d9cb!2sLagos%2C%20Nigeria!5e0!3m2!1sen!2sus!4v1648477654321!5m2!1sen!2sus"
               width="100%" height="100%" style={{ border: 0 }} allowFullScreen="" loading="lazy" title="Store Location"
@@ -133,7 +133,7 @@ const Contact = () => {
         </Container>
       </Box>
 
-      <Container sx={{ py: 8 }}>
+      <Container maxWidth="xl" sx={{ py: { xs: 8, md: 12 } }}>
         <Typography variant="h5" sx={{ fontWeight: 700, mb: 4, textAlign: 'center', color: '#1a1a1a', fontFamily: '"Playfair Display", serif' }}>
           Frequently Asked Questions
         </Typography>

@@ -42,6 +42,9 @@ const womensFashionImages = [
   { src: "/images/Women's Fashion/f7b93625793c0cff5fa38979c327f965.jpg", type: "image" },
   { src: "/images/Women's Fashion/f96362824407ba9613bc26536f4d1c0e.webp", type: "image" },
   { src: "/images/Women's Fashion/Fit&Flare gown.jpg", type: "image" },
+  { src: "/images/Women's Fashion/IMG-20260529-WA0093.jpg", type: "image" },
+  { src: "/images/Women's Fashion/IMG-20260529-WA0094.jpg", type: "image" },
+  { src: "/images/Women's Fashion/IMG-20260529-WA0099.jpg", type: "image" },
   { src: "/images/Women's Fashion/Pencil skirt.jpg", type: "image" },
   { src: "/images/Women's Fashion/Wrap Dress.jpg", type: "image" },
 ];

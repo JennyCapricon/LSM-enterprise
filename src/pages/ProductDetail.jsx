@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import { useParams, useNavigate, useSearchParams } from 'react-router-dom';
 import {
   Container, Box, Typography, Grid, Button, Chip, Stack, IconButton, Divider,
 } from '@mui/material';
@@ -11,7 +11,9 @@ import ContentCutIcon from '@mui/icons-material/ContentCut';
 import VerifiedUserIcon from '@mui/icons-material/VerifiedUser';
 import ProductBadge from '../components/ProductBadge';
 import SEO from '../components/SEO';
-import { products, categories } from '../data/products';
+import { categories, products as staticProducts } from '../data/products';
+import { getVendorForProduct } from '../data/vendors';
+import { useProduct, useProducts } from '../services/useLiveData';
 import { useCart } from '../contexts/CartContext';
 import { useWishlist } from '../contexts/WishlistContext';
 import { useRecentlyViewed } from '../contexts/RecentlyViewedContext';
@@ -19,12 +21,15 @@ import { useRecentlyViewed } from '../contexts/RecentlyViewedContext';
 const ProductDetail = () => {
   const { slug } = useParams();
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
   const { addItem } = useCart();
   const { toggleItem, isInWishlist } = useWishlist();
   const { addItem: addRecent } = useRecentlyViewed();
-  const [selectedImage, setSelectedImage] = useState(0);
+  const imageParam = searchParams.get('image');
+  const [selectedImage, setSelectedImage] = useState(imageParam ? Number(imageParam) : 0);
 
-  const fabric = products.find(p => p.slug === slug);
+  const fabric = useProduct(slug);
+  const allProducts = useProducts();
 
   useEffect(() => {
     if (fabric) {
@@ -34,21 +39,21 @@ const ProductDetail = () => {
 
   if (!fabric) {
     return (
-      <Container sx={{ py: 8, textAlign: 'center' }}>
+      <Container maxWidth="xl" sx={{ py: { xs: 8, md: 12 }, textAlign: 'center' }}>
         <Typography variant="h5" sx={{ color: '#666', mb: 2 }}>Fabric Not Found</Typography>
         <Button variant="contained" onClick={() => navigate('/shop')} sx={{ backgroundColor: '#1a1a1a' }}>Back to Shop</Button>
       </Container>
     );
   }
 
-  const relatedProducts = products
+  const relatedProducts = allProducts
     .filter(p => p.category === fabric.category && p.id !== fabric.id)
     .slice(0, 4);
 
   return (
     <Box sx={{ width: '100%' }}>
       <SEO title={fabric.name} description={fabric.description} image={fabric.images[0]} />
-      <Container sx={{ py: 4 }}>
+      <Container maxWidth="xl" sx={{ py: 4 }}>
         <Button startIcon={<ArrowBackIcon />} onClick={() => navigate('/shop')} sx={{ color: '#666', mb: 2, fontWeight: 500, '&:hover': { color: '#1a1a1a' } }}>
           Back to Shop
         </Button>
@@ -62,7 +67,7 @@ const ProductDetail = () => {
                 {fabric.images.map((img, idx) => (
                   <Box key={idx} component="img" src={img} alt=""
                     onClick={() => setSelectedImage(idx)}
-                    sx={{ width: 70, height: 70, objectFit: 'cover', cursor: 'pointer', border: selectedImage === idx ? '2px solid #1a1a1a' : '2px solid transparent', opacity: selectedImage === idx ? 1 : 0.5, flexShrink: 0 }} />
+                    sx={{ width: { xs: 56, md: 72 }, height: { xs: 56, md: 72 }, objectFit: 'cover', cursor: 'pointer', border: selectedImage === idx ? '2px solid #1a1a1a' : '2px solid transparent', opacity: selectedImage === idx ? 1 : 0.5, flexShrink: 0 }} />
                 ))}
               </Stack>
             )}
@@ -139,11 +144,11 @@ const ProductDetail = () => {
 
             <Stack direction="row" spacing={2} sx={{ mb: 3, mt: 1 }}>
               <Button variant="contained" size="large" startIcon={<ShoppingCartIcon />}
-                onClick={() => addItem({ id: fabric.id, name: fabric.name, price: fabric.price, image: fabric.images[0] })}
+                onClick={() => { const v = getVendorForProduct(fabric.id); addItem({ id: fabric.id, name: fabric.name, price: fabric.price, image: fabric.images[0], vendorId: v?.id, inStock: fabric.inStock }); }}
                 sx={{ backgroundColor: '#1a1a1a', '&:hover': { backgroundColor: '#000' }, fontWeight: 600, px: 4, py: 1.5 }}>
                 Add to Cart
               </Button>
-              <IconButton onClick={() => toggleItem({ id: fabric.id, name: fabric.name, price: fabric.price, image: fabric.images[0] })}
+              <IconButton onClick={() => toggleItem({ id: fabric.id, name: fabric.name, price: fabric.price, image: fabric.images[0], inStock: fabric.inStock })}
                 sx={{ color: isInWishlist(fabric.id) ? '#ff6b6b' : '#ccc', border: '1px solid', borderColor: 'divider' }}>
                 <FavoriteBorderIcon />
               </IconButton>
@@ -185,7 +190,7 @@ const ProductDetail = () => {
                       {rp.stockQuantity > 0 && rp.stockQuantity <= 5 && rp.status === 'active' && <ProductBadge type="almost-sold-out" />}
                       {rp.isNew && <ProductBadge isNew />}
                     </Box>
-                    <Box component="img" src={rp.images[0]} alt={rp.name} sx={{ width: '100%', height: 200, objectFit: 'cover', backgroundColor: '#f5f5f5' }} />
+                    <Box component="img" src={rp.images[0]} alt={rp.name} sx={{ width: '100%', height: { xs: 160, md: 240 }, objectFit: 'cover', backgroundColor: '#f5f5f5' }} />
                     <Box sx={{ p: 2 }}>
                       <Typography variant="body2" sx={{ fontWeight: 600, fontSize: '0.85rem' }}>{rp.name}</Typography>
                       {rp.soldQuantity > 0 && (

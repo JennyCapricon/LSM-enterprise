@@ -1,8 +1,8 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
-  Container, Box, Typography, Button, Card, CardMedia, CardContent, CardActions,
-  Grid, Paper, Stack, IconButton, Rating,
+  Container, Box, Typography, Button, Paper, Card, CardMedia, CardContent, CardActions,
+  Grid, Stack, Rating,
 } from '@mui/material';
 import ShoppingCartIcon from '@mui/icons-material/ShoppingCart';
 import FavoriteBorderIcon from '@mui/icons-material/FavoriteBorder';
@@ -14,7 +14,9 @@ import InstagramIcon from '@mui/icons-material/Instagram';
 import StraightenIcon from '@mui/icons-material/Straighten';
 import SEO from '../components/SEO';
 import ProductBadge from '../components/ProductBadge';
-import { products, collections, styleIdeas } from '../data/products';
+import { collections, styleIdeas } from '../data/products';
+import { getVendorForProduct } from '../data/vendors';
+import { useProducts } from '../services/useLiveData';
 import { useCart } from '../contexts/CartContext';
 import { useWishlist } from '../contexts/WishlistContext';
 
@@ -22,6 +24,7 @@ const Home = () => {
   const navigate = useNavigate();
   const { addItem } = useCart();
   const { toggleItem, isInWishlist } = useWishlist();
+  const products = useProducts();
   const featured = products.filter(p => p.featured).slice(0, 8);
 
   return (
@@ -31,39 +34,39 @@ const Home = () => {
       {/* HERO */}
       <Box sx={{ position: 'relative', overflow: 'hidden', background: 'linear-gradient(135deg, #1a1a2e 0%, #2d2d4e 40%, #ff6b6b 100%)' }}>
         <Box sx={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, opacity: 0.1, background: 'radial-gradient(circle at 20% 80%, rgba(247,201,72,0.4) 0%, transparent 50%), radial-gradient(circle at 80% 20%, rgba(255,255,255,0.2) 0%, transparent 50%)' }} />
-        <Box sx={{ display: 'flex', flexDirection: { xs: 'column', md: 'row' }, minHeight: { xs: 'auto', md: '80vh' }, position: 'relative', zIndex: 1 }}>
-          <Box sx={{ flex: 1, display: 'flex', alignItems: 'center', py: { xs: 8, md: 0 }, px: { xs: 3, md: 4 } }}>
-            <Box sx={{ maxWidth: 520 }}>
+        <Box sx={{ display: 'flex', flexDirection: { xs: 'column', md: 'row' }, minHeight: { xs: 'auto', md: '100vh' }, position: 'relative', zIndex: 1 }}>
+          <Box sx={{ flex: 1, display: 'flex', alignItems: 'center', py: { xs: 8, md: 0 }, px: { xs: 3, md: 6 } }}>
+            <Box sx={{ maxWidth: { xs: '100%', md: 640 } }}>
               <Typography variant="overline" sx={{ color: '#f7c948', fontWeight: 700, letterSpacing: '0.15em', fontSize: '0.7rem', mb: 2, display: 'block' }}>
                 Premium Fabrics by the Yard
               </Typography>
-              <Typography variant="h2" sx={{ fontWeight: 800, mb: 2, lineHeight: 1.1, fontSize: { xs: '2.5rem', md: '4rem' }, letterSpacing: '-0.03em', color: '#fff' }}>
+              <Typography variant="h2" sx={{ fontWeight: 800, mb: 2, lineHeight: 1.1, fontSize: { xs: '2.5rem', md: '4.5rem' }, letterSpacing: '-0.03em', color: '#fff' }}>
                 Your Fabric<br />Destination
               </Typography>
-              <Typography variant="body1" sx={{ mb: 5, color: 'rgba(255,255,255,0.8)', lineHeight: 1.7, maxWidth: 420, fontSize: '1.05rem' }}>
+              <Typography variant="body1" sx={{ mb: 5, color: 'rgba(255,255,255,0.8)', lineHeight: 1.7, maxWidth: { xs: '100%', md: 520 }, fontSize: '1.05rem' }}>
                 Curated fabrics for every project. From luxurious silks to durable cottons — find quality materials and style inspiration all in one place.
               </Typography>
               <Stack direction={{ xs: 'column', sm: 'row' }} gap={2}>
                 <Button variant="contained" size="large" onClick={() => navigate('/womens-gallery')}
-                  sx={{ backgroundColor: '#f7c948', color: '#1a1a2e', fontWeight: 700, px: 4, py: 1.5, '&:hover': { backgroundColor: '#e0b032' } }}>
+                  sx={{ backgroundColor: '#f7c948', color: '#1a1a2e', fontWeight: 700, px: 5, py: 1.5, '&:hover': { backgroundColor: '#e0b032' } }}>
                   Browse Gallery
                 </Button>
                 <Button variant="outlined" size="large" onClick={() => navigate('/shop')}
-                  sx={{ borderColor: 'rgba(255,255,255,0.5)', color: '#fff', fontWeight: 600, px: 4, py: 1.5, '&:hover': { borderColor: '#fff', backgroundColor: 'rgba(255,255,255,0.1)' } }}>
+                  sx={{ borderColor: 'rgba(255,255,255,0.5)', color: '#fff', fontWeight: 600, px: 5, py: 1.5, '&:hover': { borderColor: '#fff', backgroundColor: 'rgba(255,255,255,0.1)' } }}>
                   Shop All Fabrics
                 </Button>
               </Stack>
             </Box>
           </Box>
-          <Box sx={{ flex: { md: 0.6 }, display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: { xs: 200, md: 'auto' } }}>
+          <Box sx={{ flex: { md: 1 }, display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: { xs: 300, md: '100vh' } }}>
             <Box component="img" src="/images/Homm.jpg.png" alt="Fabric showcase"
-              sx={{ width: '100%', maxWidth: 500, height: 'auto', objectFit: 'contain' }} />
+              sx={{ width: '100%', height: '100%', objectFit: 'cover' }} />
           </Box>
         </Box>
       </Box>
 
       {/* COLLECTIONS */}
-      <Container sx={{ py: { xs: 6, md: 8 } }}>
+      <Container maxWidth="xl" sx={{ py: { xs: 6, md: 10 } }}>
         <Typography variant="h4" sx={{ fontWeight: 700, mb: 1, fontSize: { xs: '1.5rem', md: '2rem' } }}>
           Browse by Collection
         </Typography>
@@ -97,7 +100,7 @@ const Home = () => {
 
       {/* STYLE INSPIRATION GALLERY */}
       <Box sx={{ backgroundColor: '#fff', py: { xs: 6, md: 8 }, borderTop: '1px solid', borderColor: 'divider' }}>
-        <Container>
+        <Container maxWidth="xl">
           <Typography variant="h4" sx={{ fontWeight: 700, mb: 1, fontSize: { xs: '1.5rem', md: '2rem' } }}>
             Style Inspiration
           </Typography>
@@ -109,7 +112,7 @@ const Home = () => {
               <Grid item xs={6} md={3} key={i}>
                 <Paper elevation={0} sx={{ borderRadius: 2, overflow: 'hidden', cursor: 'pointer', border: '1px solid', borderColor: 'divider', transition: 'all 0.3s', '&:hover': { transform: 'translateY(-4px)', boxShadow: '0 8px 24px rgba(0,0,0,0.1)' } }}
                   onClick={() => navigate('/womens-gallery')}>
-                  <Box component="img" src={style.image} alt={style.name} sx={{ width: '100%', height: 240, objectFit: 'cover' }} />
+                  <Box component="img" src={style.image} alt={style.name} sx={{ width: '100%', height: { xs: 180, md: 280 }, objectFit: 'cover' }} />
                   <Box sx={{ p: 2 }}>
                     <Typography variant="h6" sx={{ fontWeight: 600, fontSize: '0.95rem' }}>{style.name}</Typography>
                     <Typography variant="caption" sx={{ color: '#999' }}>{style.description}</Typography>
@@ -140,58 +143,51 @@ const Home = () => {
           <Typography variant="body1" sx={{ color: 'text.secondary', mb: 4 }}>
             Our most popular fabrics, ready for your next project
           </Typography>
-          <Grid container spacing={2}>
+          <Box sx={{ display: 'grid', gridTemplateColumns: { xs: 'repeat(2, 1fr)', md: 'repeat(4, 1fr)' }, gap: { xs: 1.5, md: 2 } }}>
             {featured.slice(0, 4).map((fabric) => (
-              <Grid item xs={6} md={3} key={fabric.id}>
-                <Card sx={{ height: '100%', display: 'flex', flexDirection: 'column', cursor: 'pointer', position: 'relative', transition: 'all 0.3s', border: '1px solid', borderColor: 'divider', boxShadow: 'none', '&:hover': { transform: 'translateY(-4px)', boxShadow: '0 8px 24px rgba(0,0,0,0.1)' } }}
-                  onClick={() => navigate(`/shop/${fabric.slug}`)}>
-                  <Box sx={{ position: 'absolute', top: 8, left: 8, zIndex: 1, display: 'flex', flexDirection: 'column', gap: 0.5 }}>
+              <Card key={fabric.id} sx={{ cursor: 'pointer', transition: 'all 0.3s', border: '1px solid', borderColor: 'divider', boxShadow: 'none', borderRadius: 1, overflow: 'hidden', '&:hover': { transform: 'translateY(-4px)', boxShadow: '0 8px 24px rgba(0,0,0,0.1)' } }}
+                onClick={() => navigate(`/shop/${fabric.slug}`)}>
+                <Box sx={{ position: 'relative', overflow: 'hidden', backgroundColor: '#f5f5f5' }}>
+                  <Box sx={{ position: 'absolute', top: 6, left: 6, zIndex: 1, display: 'flex', flexDirection: 'column', gap: 0.4 }}>
                     {fabric.status !== 'active' && <ProductBadge type={fabric.status} />}
                     {fabric.stockQuantity === 0 && fabric.status === 'active' && <ProductBadge type="sold-out" />}
                     {fabric.stockQuantity > 0 && fabric.stockQuantity <= 5 && fabric.status === 'active' && <ProductBadge type="almost-sold-out" />}
                     {fabric.isNew && <ProductBadge isNew />}
                   </Box>
-                  {fabric.discount > 0 && <Box sx={{ position: 'absolute', top: 8, right: 8, zIndex: 1, backgroundColor: '#ff6b6b', color: '#fff', padding: '2px 8px', fontSize: '0.7rem', fontWeight: 700 }}>-{fabric.discount}%</Box>}
-                  <Box sx={{ position: 'relative', overflow: 'hidden', backgroundColor: '#f5f5f5' }}>
-                    <CardMedia component="img" height="260" image={fabric.images[0]} alt={fabric.name} sx={{ objectFit: 'cover', transition: 'transform 0.5s', '&:hover': { transform: 'scale(1.06)' } }} />
-                  </Box>
-                  <CardContent sx={{ px: 2, pt: 2, pb: 1, flexGrow: 1 }}>
-                    <Typography variant="overline" sx={{ color: '#999', fontSize: '0.6rem', letterSpacing: '0.1em' }}>{fabric.category}</Typography>
-                    <Typography variant="body2" sx={{ fontWeight: 600, mb: 0.5, fontSize: '0.9rem' }}>{fabric.name}</Typography>
-                    {fabric.soldQuantity > 0 && (
-                      <Typography variant="caption" sx={{ color: '#999', display: 'block', mb: 0.5, fontSize: '0.65rem' }}>
-                        {fabric.soldQuantity} yards sold
-                      </Typography>
-                    )}
-                    <Stack direction="row" spacing={1} alignItems="baseline">
-                      <Typography variant="h6" sx={{ fontWeight: 700, fontSize: '1rem', color: '#ff6b6b' }}>₦{fabric.price.toFixed(2)}</Typography>
-                      <Typography variant="caption" sx={{ color: '#999' }}>{fabric.unit}</Typography>
-                      {fabric.comparePrice && <Typography variant="body2" sx={{ textDecoration: 'line-through', color: '#ccc', fontSize: '0.8rem' }}>₦{fabric.comparePrice.toFixed(2)}</Typography>}
-                    </Stack>
-                  </CardContent>
-                  <CardActions sx={{ px: 2, pb: 2, pt: 0 }}>
-                    <Button fullWidth variant="contained" size="small" startIcon={<ShoppingCartIcon />}
-                      onClick={(e) => { e.stopPropagation(); addItem({ id: fabric.id, name: fabric.name, price: fabric.price, image: fabric.images[0] }); }}
-                      sx={{ backgroundColor: '#1a1a2e', '&:hover': { backgroundColor: '#2d2d4e' }, fontWeight: 600, fontSize: '0.8rem' }}>
-                      Add to Cart
-                    </Button>
-                  </CardActions>
-                </Card>
-              </Grid>
+                  {fabric.discount > 0 && <Box sx={{ position: 'absolute', top: 6, right: 6, zIndex: 1, backgroundColor: '#ff6b6b', color: '#fff', padding: '2px 8px', fontSize: '0.7rem', fontWeight: 700 }}>-{fabric.discount}%</Box>}
+                  <CardMedia component="img" height={{ xs: 160, md: 220 }} image={fabric.images[0]} alt={fabric.name} sx={{ width: '100%', objectFit: 'cover' }} />
+                </Box>
+                <CardContent sx={{ px: 1, pt: 1, pb: 0.5 }}>
+                  <Typography variant="overline" sx={{ color: '#999', fontSize: '0.55rem', letterSpacing: '0.08em' }}>{fabric.category}</Typography>
+                  <Typography variant="body2" sx={{ fontWeight: 600, mb: 0.3, fontSize: '0.8rem' }}>{fabric.name}</Typography>
+                  <Stack direction="row" spacing={0.5} alignItems="baseline">
+                    <Typography variant="h6" sx={{ fontWeight: 700, fontSize: '0.85rem', color: '#ff6b6b' }}>₦{fabric.price.toFixed(2)}</Typography>
+                    <Typography variant="caption" sx={{ color: '#999', fontSize: '0.6rem' }}>{fabric.unit}</Typography>
+                    {fabric.comparePrice && <Typography variant="body2" sx={{ textDecoration: 'line-through', color: '#ccc', fontSize: '0.65rem' }}>₦{fabric.comparePrice.toFixed(2)}</Typography>}
+                  </Stack>
+                </CardContent>
+                <CardActions sx={{ px: 1, pb: 1, pt: 0 }}>
+                  <Button fullWidth variant="contained" size="small"
+                    onClick={(e) => { e.stopPropagation(); const v = getVendorForProduct(fabric.id); addItem({ id: fabric.id, name: fabric.name, price: fabric.price, image: fabric.images[0], vendorId: v?.id, inStock: fabric.inStock }); }}
+                    sx={{ backgroundColor: '#1a1a2e', '&:hover': { backgroundColor: '#2d2d4e' }, fontWeight: 600, fontSize: '0.65rem', py: 0.3 }}>
+                    Add to Cart
+                  </Button>
+                </CardActions>
+              </Card>
             ))}
-          </Grid>
+          </Box>
         </Container>
       </Box>
 
       {/* BANNER */}
       <Box sx={{ background: 'linear-gradient(135deg, #1a1a2e 0%, #ff6b6b 100%)', color: '#fff', py: { xs: 5, md: 7 } }}>
-        <Container>
+        <Container maxWidth="xl">
           <Grid container spacing={3} alignItems="center">
             <Grid item xs={12} md={7}>
               <Typography variant="h4" sx={{ fontWeight: 700, mb: 1.5, fontSize: { xs: '1.5rem', md: '2.2rem' } }}>
                 Not Sure How Much Fabric You Need?
               </Typography>
-              <Typography variant="body1" sx={{ color: 'rgba(255,255,255,0.8)', maxWidth: 500, lineHeight: 1.7 }}>
+              <Typography variant="body1" sx={{ color: 'rgba(255,255,255,0.8)', maxWidth: { xs: '100%', md: 600 }, lineHeight: 1.7 }}>
                 Use our Measurement Guide to calculate the perfect yardage for dresses, shirts, trousers, and more. Save time and money.
               </Typography>
             </Grid>
@@ -206,57 +202,50 @@ const Home = () => {
       </Box>
 
       {/* MORE FABRICS */}
-      <Container sx={{ py: { xs: 6, md: 8 } }}>
+      <Container sx={{ py: { xs: 6, md: 10 } }}>
         <Typography variant="h4" sx={{ fontWeight: 700, mb: 1, fontSize: { xs: '1.5rem', md: '2rem' } }}>
           More to Explore
         </Typography>
         <Typography variant="body1" sx={{ color: 'text.secondary', mb: 4 }}>
           Discover more fabrics for your creative projects
         </Typography>
-        <Grid container spacing={2}>
+        <Box sx={{ display: 'grid', gridTemplateColumns: { xs: 'repeat(2, 1fr)', md: 'repeat(4, 1fr)' }, gap: { xs: 1.5, md: 2 } }}>
           {featured.slice(4, 8).map((fabric) => (
-            <Grid item xs={6} md={3} key={fabric.id}>
-              <Card sx={{ height: '100%', display: 'flex', flexDirection: 'column', cursor: 'pointer', position: 'relative', transition: 'all 0.3s', border: '1px solid', borderColor: 'divider', boxShadow: 'none', '&:hover': { transform: 'translateY(-4px)', boxShadow: '0 8px 24px rgba(0,0,0,0.1)' } }}
-                onClick={() => navigate(`/shop/${fabric.slug}`)}>
-                <Box sx={{ position: 'absolute', top: 8, left: 8, zIndex: 1, display: 'flex', flexDirection: 'column', gap: 0.5 }}>
+            <Card key={fabric.id} sx={{ cursor: 'pointer', transition: 'all 0.3s', border: '1px solid', borderColor: 'divider', boxShadow: 'none', borderRadius: 1, overflow: 'hidden', '&:hover': { transform: 'translateY(-4px)', boxShadow: '0 8px 24px rgba(0,0,0,0.1)' } }}
+              onClick={() => navigate(`/shop/${fabric.slug}`)}>
+              <Box sx={{ position: 'relative', overflow: 'hidden', backgroundColor: '#f5f5f5' }}>
+                <Box sx={{ position: 'absolute', top: 6, left: 6, zIndex: 1, display: 'flex', flexDirection: 'column', gap: 0.4 }}>
                   {fabric.status !== 'active' && <ProductBadge type={fabric.status} />}
                   {fabric.stockQuantity === 0 && fabric.status === 'active' && <ProductBadge type="sold-out" />}
                   {fabric.stockQuantity > 0 && fabric.stockQuantity <= 5 && fabric.status === 'active' && <ProductBadge type="almost-sold-out" />}
-                    {fabric.isNew && <ProductBadge isNew />}
-                  </Box>
-                {fabric.discount > 0 && <Box sx={{ position: 'absolute', top: 8, right: 8, zIndex: 1, backgroundColor: '#ff6b6b', color: '#fff', padding: '2px 8px', fontSize: '0.7rem', fontWeight: 700 }}>-{fabric.discount}%</Box>}
-                <Box sx={{ position: 'relative', overflow: 'hidden', backgroundColor: '#f5f5f5' }}>
-                  <CardMedia component="img" height="260" image={fabric.images[0]} alt={fabric.name} sx={{ objectFit: 'cover', transition: 'transform 0.5s', '&:hover': { transform: 'scale(1.06)' } }} />
+                  {fabric.isNew && <ProductBadge isNew />}
                 </Box>
-                <CardContent sx={{ px: 2, pt: 2, pb: 1, flexGrow: 1 }}>
-                  <Typography variant="overline" sx={{ color: '#999', fontSize: '0.6rem', letterSpacing: '0.1em' }}>{fabric.category}</Typography>
-                  <Typography variant="body2" sx={{ fontWeight: 600, mb: 0.5, fontSize: '0.9rem' }}>{fabric.name}</Typography>
-                  {fabric.soldQuantity > 0 && (
-                    <Typography variant="caption" sx={{ color: '#999', display: 'block', mb: 0.5, fontSize: '0.65rem' }}>
-                      {fabric.soldQuantity} yards sold
-                    </Typography>
-                  )}
-                  <Stack direction="row" spacing={1} alignItems="baseline">
-                    <Typography variant="h6" sx={{ fontWeight: 700, fontSize: '1rem', color: '#ff6b6b' }}>₦{fabric.price.toFixed(2)}</Typography>
-                    <Typography variant="caption" sx={{ color: '#999' }}>{fabric.unit}</Typography>
-                  </Stack>
-                </CardContent>
-                <CardActions sx={{ px: 2, pb: 2, pt: 0 }}>
-                  <Button fullWidth variant="contained" size="small"
-                    onClick={(e) => { e.stopPropagation(); addItem({ id: fabric.id, name: fabric.name, price: fabric.price, image: fabric.images[0] }); }}
-                    sx={{ backgroundColor: '#1a1a2e', '&:hover': { backgroundColor: '#2d2d4e' }, fontWeight: 600, fontSize: '0.8rem' }}>
-                    Quick Add
-                  </Button>
-                </CardActions>
-              </Card>
-            </Grid>
+                {fabric.discount > 0 && <Box sx={{ position: 'absolute', top: 6, right: 6, zIndex: 1, backgroundColor: '#ff6b6b', color: '#fff', padding: '2px 8px', fontSize: '0.7rem', fontWeight: 700 }}>-{fabric.discount}%</Box>}
+                <CardMedia component="img" height={{ xs: 160, md: 220 }} image={fabric.images[0]} alt={fabric.name} sx={{ width: '100%', objectFit: 'cover' }} />
+              </Box>
+              <CardContent sx={{ px: 1, pt: 1, pb: 0.5 }}>
+                <Typography variant="overline" sx={{ color: '#999', fontSize: '0.55rem', letterSpacing: '0.08em' }}>{fabric.category}</Typography>
+                <Typography variant="body2" sx={{ fontWeight: 600, mb: 0.3, fontSize: '0.8rem' }}>{fabric.name}</Typography>
+                <Stack direction="row" spacing={0.5} alignItems="baseline">
+                  <Typography variant="h6" sx={{ fontWeight: 700, fontSize: '0.85rem', color: '#ff6b6b' }}>₦{fabric.price.toFixed(2)}</Typography>
+                  <Typography variant="caption" sx={{ color: '#999', fontSize: '0.6rem' }}>{fabric.unit}</Typography>
+                </Stack>
+              </CardContent>
+              <CardActions sx={{ px: 1, pb: 1, pt: 0 }}>
+                <Button fullWidth variant="contained" size="small"
+                  onClick={(e) => { e.stopPropagation(); const v = getVendorForProduct(fabric.id); addItem({ id: fabric.id, name: fabric.name, price: fabric.price, image: fabric.images[0], vendorId: v?.id, inStock: fabric.inStock }); }}
+                  sx={{ backgroundColor: '#1a1a2e', '&:hover': { backgroundColor: '#2d2d4e' }, fontWeight: 600, fontSize: '0.65rem', py: 0.3 }}>
+                  Quick Add
+                </Button>
+              </CardActions>
+            </Card>
           ))}
-        </Grid>
+        </Box>
       </Container>
 
       {/* FEATURES */}
       <Box sx={{ backgroundColor: '#fff', py: { xs: 5, md: 7 }, borderTop: '1px solid', borderColor: 'divider' }}>
-        <Container>
+        <Container maxWidth="xl">
           <Grid container spacing={3}>
             {[
               { icon: <LocalShippingIcon />, title: 'Fast Shipping', desc: 'Delivered in 3-5 business days' },

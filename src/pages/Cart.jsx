@@ -31,7 +31,7 @@ const Cart = () => {
 
   if (items.length === 0) {
     return (
-      <Container sx={{ py: 8, textAlign: 'center' }}>
+      <Container maxWidth="xl" sx={{ py: { xs: 8, md: 12 }, textAlign: 'center' }}>
         <SEO title="Shopping Cart" />
         <ShoppingBagIcon sx={{ fontSize: 80, color: '#ccc', mb: 2 }} />
         <Typography variant="h5" sx={{ color: '#1a1a1a', mb: 1, fontFamily: '"Playfair Display", serif' }}>
@@ -55,7 +55,7 @@ const Cart = () => {
     <Box sx={{ width: '100%' }}>
       <SEO title="Shopping Cart" />
       <Box sx={{ background: 'linear-gradient(135deg, #000000 0%, #1a1a1a 100%)', color: '#f5f5f5', py: 4, textAlign: 'center' }}>
-        <Container>
+        <Container maxWidth="xl">
           <Typography variant="h4" sx={{ fontWeight: 700, fontFamily: '"Playfair Display", serif' }}>
             Shopping Cart
           </Typography>
@@ -63,7 +63,7 @@ const Cart = () => {
         </Container>
       </Box>
 
-      <Container sx={{ py: 4 }}>
+      <Container maxWidth="xl" sx={{ py: 4 }}>
         <Grid container spacing={4}>
           <Grid item xs={12} md={8}>
             <Stack spacing={2}>
@@ -77,7 +77,7 @@ const Cart = () => {
                     component="img"
                     src={item.image}
                     alt={item.name}
-                    sx={{ width: 120, height: 120, objectFit: 'cover', borderRadius: 1, cursor: 'pointer', flexShrink: 0 }}
+                    sx={{ width: { xs: 80, md: 130 }, height: { xs: 80, md: 130 }, objectFit: 'cover', borderRadius: 1, cursor: 'pointer', flexShrink: 0 }}
                     onClick={() => navigate(`/shop/${item.id}`)}
                   />
                   <Box sx={{ flex: 1, display: 'flex', flexDirection: 'column' }}>

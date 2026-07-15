@@ -18,7 +18,7 @@ const Wishlist = () => {
 
   if (wishlist.length === 0) {
     return (
-      <Container sx={{ py: 8, textAlign: 'center' }}>
+      <Container maxWidth="xl" sx={{ py: { xs: 8, md: 12 }, textAlign: 'center' }}>
         <SEO title="Wishlist" />
         <FavoriteIcon sx={{ fontSize: 80, color: '#ccc', mb: 2 }} />
         <Typography variant="h5" sx={{ color: '#1a1a1a', mb: 1, fontFamily: '"Playfair Display", serif' }}>
@@ -41,13 +41,13 @@ const Wishlist = () => {
     <Box sx={{ width: '100%' }}>
       <SEO title="Wishlist" />
       <Box sx={{ background: 'linear-gradient(135deg, #000000 0%, #1a1a1a 100%)', color: '#f5f5f5', py: 4, textAlign: 'center' }}>
-        <Container>
+        <Container maxWidth="xl">
           <Typography variant="h4" sx={{ fontWeight: 700, fontFamily: '"Playfair Display", serif' }}>
             My Wishlist ({wishlist.length})
           </Typography>
         </Container>
       </Box>
-      <Container sx={{ py: 4 }}>
+      <Container maxWidth="xl" sx={{ py: 4 }}>
         <Button
           startIcon={<ArrowBackIcon />} onClick={() => navigate('/shop')}
           sx={{ color: '#1a1a1a', mb: 3, fontWeight: 600 }}
@@ -65,7 +65,7 @@ const Wishlist = () => {
                 }}
                 onClick={() => navigate(`/shop/${item.id}`)}
               >
-                <CardMedia component="img" height="250" image={item.image} alt={item.name} sx={{ objectFit: 'cover' }} />
+                <CardMedia component="img" height={{ xs: 200, md: 280 }} image={item.image} alt={item.name} sx={{ objectFit: 'cover' }} />
                 <CardContent sx={{ flexGrow: 1 }}>
                   <Typography variant="h6" sx={{ fontWeight: 600, color: '#1a1a1a', fontFamily: '"Playfair Display", serif' }}>
                     {item.name}
